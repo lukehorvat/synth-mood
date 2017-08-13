@@ -42,43 +42,53 @@ gridTop.position.z = 0;
 gridTop.userData.type = "grid";
 scene.add(gridTop);
 
-let loader = new THREE.OBJLoader();
-
-loader.load("models/building1.obj", object => {
-  object.position.x = random(-1000, 1000, true);
-  object.position.y = gridBottom.position.y;
-  object.position.z = 0;
-  object.scale.x = 30;
-  object.scale.y = 30;
-  object.scale.z = 30;
-  object.userData.type = "item";
-
-  object.traverse(child => {
-    if (child instanceof THREE.Mesh) {
-      child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.8 });
-    }
-  });
-
-  scene.add(object);
-});
+let objLoader = new THREE.OBJLoader();
+objLoader.setPath("models/");
 
 function render() {
   requestAnimationFrame(render);
 
+  // Update all objects in the scene.
   scene.traverse(child => {
     switch (child.userData.type) {
       case "grid":
-        // Move grid closer to the camera.
-        // To make grid appear "infinite", reset its position once it has travelled one grid row of distance.
-        child.position.z = child.position.z < gridSize / gridDivisions ? child.position.z + 1 : 0;
+        if (child.position.z < gridSize / gridDivisions)
+          // Move grid closer to the camera.
+          child.position.z += 1;
+        else
+          // To make grid appear "infinite", reset its position once it has travelled one grid row of distance.
+          child.position.z = 0;
         break;
       case "item":
-        // Move item closer to the camera.
-        // Reset its position once it has travelled past the camera.
-        child.position.z = child.position.z < camera.position.z ? child.position.z + 1 : 0;
+        if (child.position.z < camera.position.z)
+          // Move item closer to the camera.
+          child.position.z += 1;
+        else
+          // Reset item's position once it has travelled past the camera.
+          child.position.z = 0;
         break;
     }
   });
+
+  // Spawn a new item.
+  if (random(0, 1000) < 10) {
+    objLoader.load(`item${random(1, 2)}.obj`, item => {
+      item.position.x = random(-1000, 1000, true);
+      item.position.y = gridBottom.position.y;
+      item.position.z = 0;
+      item.scale.x = 30;
+      item.scale.y = 30;
+      item.scale.z = 30;
+      item.userData.type = "item";
+      item.traverse(child => {
+        if (child instanceof THREE.Mesh) {
+          child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.8 });
+        }
+      });
+
+      scene.add(item);
+    });
+  }
 
   // Render the scene!
   renderer.render(scene, camera);
