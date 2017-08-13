@@ -49,6 +49,7 @@ function render() {
   requestAnimationFrame(render);
 
   // Update all objects in the scene.
+  let childrenToRemove = new Set();
   scene.traverse(child => {
     switch (child.userData.type) {
       case "grid":
@@ -64,11 +65,14 @@ function render() {
           // Move item closer to the camera.
           child.position.z += 1;
         else
-          // Reset item's position once it has travelled past the camera.
-          child.position.z = 0;
+          // Destroy item once it has travelled past the camera.
+          childrenToRemove.add(child);
         break;
     }
   });
+
+  // Destroy scene objects.
+  childrenToRemove.forEach(::scene.remove);
 
   // Spawn a new item.
   if (random(0, 1000) < 10) {
