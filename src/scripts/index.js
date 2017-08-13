@@ -32,17 +32,18 @@ let gridBottom = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, 
 gridBottom.position.x = 0;
 gridBottom.position.y = -100;
 gridBottom.position.z = 0;
+gridBottom.userData.type = "grid";
 scene.add(gridBottom);
 
 let gridTop = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, foregroundColor);
 gridTop.position.x = 0;
 gridTop.position.y = 100;
 gridTop.position.z = 0;
+gridTop.userData.type = "grid";
 scene.add(gridTop);
 
 let loader = new THREE.OBJLoader();
 
-let objects = new Set();
 loader.load("models/building1.obj", object => {
   object.position.x = random(-1000, 1000, true);
   object.position.y = gridBottom.position.y;
@@ -50,31 +51,33 @@ loader.load("models/building1.obj", object => {
   object.scale.x = 30;
   object.scale.y = 30;
   object.scale.z = 30;
+  object.userData.type = "item";
 
   object.traverse(child => {
     if (child instanceof THREE.Mesh) {
-      child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.95 });
+      child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.8 });
     }
   });
 
   scene.add(object);
-  objects.add(object);
 });
 
 function render() {
   requestAnimationFrame(render);
 
-  // Move grids closer to camera.
-  // To make grid appear "infinite", reset the position each time one grid row of distance has been travelled.
-  let gridRowSize = gridSize / gridDivisions;
-  gridBottom.position.z = gridBottom.position.z < gridRowSize ? gridBottom.position.z + 1 : 0;
-  gridTop.position.z = gridTop.position.z < gridRowSize ? gridTop.position.z + 1 : 0;
-
-  // Move 3D objects closer to camera.
-  // Reset position once object is past camera.
-  objects.forEach(object => {
-    object.position.z = object.position.z < camera.position.z ? object.position.z + 1 : 0;
-    // object.rotation.y += 0.01;
+  scene.traverse(child => {
+    switch (child.userData.type) {
+      case "grid":
+        // Move grid closer to the camera.
+        // To make grid appear "infinite", reset its position once it has travelled one grid row of distance.
+        child.position.z = child.position.z < gridSize / gridDivisions ? child.position.z + 1 : 0;
+        break;
+      case "item":
+        // Move item closer to the camera.
+        // Reset its position once it has travelled past the camera.
+        child.position.z = child.position.z < camera.position.z ? child.position.z + 1 : 0;
+        break;
+    }
   });
 
   // Render the scene!
