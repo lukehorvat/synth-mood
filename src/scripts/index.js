@@ -6,7 +6,7 @@ import { soundManager } from "soundmanager2";
 
 soundManager.setup({
   debugMode: false,
-  onready: () => ["1.mp3"].forEach(sound => (
+  onready: () => ["1.mp3", "2.mp3", "3.mp3", "4.mp3", "5.mp3"].forEach(sound => (
     soundManager.createSound({
       id: sound,
       url: `sounds/${sound}`,
@@ -126,7 +126,7 @@ function render() {
 
   // Spawn a new sound.
   if (random(0, 1000) < 10) {
-    soundManager.getSoundById("1.mp3").play();
+    soundManager.getSoundById(`${random(1, 5)}.mp3`).play();
   }
 
   // Render the scene!
