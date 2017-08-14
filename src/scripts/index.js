@@ -46,7 +46,7 @@ camera.position.z = drawDistance;
 let fontLoader = new THREE.FontLoader();
 fontLoader.load("fonts/Righteous_Regular.json", font => {
   let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
-  let material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.8 });
+  let material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
   let mesh = new THREE.Mesh(geometry, material);
 
   // Center text.
@@ -90,13 +90,14 @@ function render() {
           // To make grid appear "infinite", reset its position once it has travelled one grid row of distance.
           child.position.z = 0;
         break;
-      case "item":
+      case "note":
         if (child.position.z < camera.position.z)
-          // Move item closer to the camera.
-          child.position.z += 1;
+          // Move note closer to the camera.
+          child.position.z += 5;
         else
-          // Destroy item once it has travelled past the camera.
+          // Destroy note once it has travelled past the camera.
           childrenToRemove.add(child);
+        // child.rotation.z += 0.02;
         break;
     }
   });
@@ -104,29 +105,27 @@ function render() {
   // Destroy scene objects.
   childrenToRemove.forEach(::scene.remove);
 
-  // Spawn a new item.
-  if (random(0, 1000) < 10) {
-    objLoader.load(`item${random(1, 2)}.obj`, item => {
-      item.position.x = random(-1000, 1000, true);
-      item.position.y = gridBottom.position.y;
-      item.position.z = 0;
-      item.scale.x = 15;
-      item.scale.y = 15;
-      item.scale.z = 15;
-      item.userData.type = "item";
-      item.traverse(child => {
+  // Spawn a new note.
+  if (random(0, 100) < 5) {
+    objLoader.load(`note${random(1, 2)}.obj`, note => {
+      note.position.x = random(-500, 500);
+      note.position.y = random(gridBottom.position.y, gridTop.position.y);
+      note.position.z = 0;
+      note.scale.x = note.scale.y = note.scale.z = 20;
+      note.userData.type = "note";
+      note.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.8 });
+          child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
         }
       });
 
-      scene.add(item);
+      scene.add(note);
     });
   }
 
   // Spawn a new sound.
   if (random(0, 1000) < 10) {
-    soundManager.getSoundById(`${random(1, 5)}.mp3`).play();
+    // soundManager.getSoundById(`${random(1, 5)}.mp3`).play();
   }
 
   // Render the scene!
