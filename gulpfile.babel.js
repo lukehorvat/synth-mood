@@ -85,6 +85,7 @@ gulp.task("build-styles", () => {
 gulp.task("build-misc", () => {
   let imagesFilter = filter("**/*.{ico,gif,jpg,png}", { restore: true });
   let soundsFilter = filter("**/*.mp3", { restore: true });
+  let fontsFilter = filter("**/*.json", { restore: true });
   let modelsFilter = filter("**/*.obj", { restore: true });
 
   return gulp
@@ -95,6 +96,9 @@ gulp.task("build-misc", () => {
     .pipe(soundsFilter)
     .pipe(gulp.dest(`${config.buildDir}/sounds`))
     .pipe(soundsFilter.restore)
+    .pipe(fontsFilter)
+    .pipe(gulp.dest(`${config.buildDir}/fonts`))
+    .pipe(fontsFilter.restore)
     .pipe(modelsFilter)
     .pipe(gulp.dest(`${config.buildDir}/models`))
     .pipe(modelsFilter.restore);

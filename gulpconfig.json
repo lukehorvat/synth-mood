@@ -8,6 +8,7 @@
   "misc": [
     "src/images/**/*.{ico,gif,jpg,png}",
     "src/sounds/**/*.mp3",
+    "src/fonts/**/*.json",
     "src/models/**/*.obj"
   ],
   "environments": [{

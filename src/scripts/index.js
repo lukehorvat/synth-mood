@@ -43,6 +43,21 @@ camera.position.x = 0;
 camera.position.y = 0;
 camera.position.z = drawDistance;
 
+let fontLoader = new THREE.FontLoader();
+fontLoader.load("fonts/Righteous_Regular.json", font => {
+  let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
+  let material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.8 });
+  let mesh = new THREE.Mesh(geometry, material);
+
+  // Center text.
+  geometry.computeBoundingBox();
+  mesh.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
+  mesh.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
+  mesh.position.z = 0;
+
+  scene.add(mesh);
+});
+
 let gridBottom = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, foregroundColor);
 gridBottom.position.x = 0;
 gridBottom.position.y = -100;
@@ -95,9 +110,9 @@ function render() {
       item.position.x = random(-1000, 1000, true);
       item.position.y = gridBottom.position.y;
       item.position.z = 0;
-      item.scale.x = 30;
-      item.scale.y = 30;
-      item.scale.z = 30;
+      item.scale.x = 15;
+      item.scale.y = 15;
+      item.scale.z = 15;
       item.userData.type = "item";
       item.traverse(child => {
         if (child instanceof THREE.Mesh) {
