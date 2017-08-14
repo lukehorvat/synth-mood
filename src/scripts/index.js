@@ -2,6 +2,21 @@ import * as THREE from "three";
 import OBJLoader from "three-obj-loader";
 import WindowResize from "three-window-resize";
 import random from "lodash.random";
+import { soundManager } from "soundmanager2";
+
+soundManager.setup({
+  debugMode: false,
+  onready: () => ["1.mp3"].forEach(sound => (
+    soundManager.createSound({
+      id: sound,
+      url: `sounds/${sound}`,
+      autoLoad: true,
+      onload: () => {
+        // TODO.
+      }
+    })
+  ))
+});
 
 OBJLoader(THREE);
 
@@ -92,6 +107,11 @@ function render() {
 
       scene.add(item);
     });
+  }
+
+  // Spawn a new sound.
+  if (random(0, 1000) < 10) {
+    soundManager.getSoundById("1.mp3").play();
   }
 
   // Render the scene!
