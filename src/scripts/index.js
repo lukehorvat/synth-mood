@@ -47,29 +47,29 @@ let fontLoader = new THREE.FontLoader();
 fontLoader.load("fonts/Righteous_Regular.json", font => {
   let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
   let material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
-  let mesh = new THREE.Mesh(geometry, material);
+  let text = new THREE.Mesh(geometry, material);
 
   // Center text.
   geometry.computeBoundingBox();
-  mesh.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
-  mesh.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
-  mesh.position.z = 0;
+  text.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
+  text.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
+  text.position.z = 0;
 
-  scene.add(mesh);
+  scene.add(text);
 });
 
 let gridBottom = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, foregroundColor);
 gridBottom.position.x = 0;
 gridBottom.position.y = -100;
 gridBottom.position.z = 0;
-gridBottom.userData.type = "grid";
+gridBottom.userData = { type: "grid" };
 scene.add(gridBottom);
 
 let gridTop = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, foregroundColor);
 gridTop.position.x = 0;
 gridTop.position.y = 100;
 gridTop.position.z = 0;
-gridTop.userData.type = "grid";
+gridTop.userData = { type: "grid" };
 scene.add(gridTop);
 
 let objLoader = new THREE.OBJLoader();
@@ -93,11 +93,11 @@ function render() {
       case "note":
         if (child.position.z < camera.position.z)
           // Move note closer to the camera.
-          child.position.z += 5;
+          child.position.z += 3;
         else
           // Destroy note once it has travelled past the camera.
           childrenToRemove.add(child);
-        // child.rotation.z += 0.02;
+        // child.rotation.y += 0.02;
         break;
     }
   });
@@ -106,13 +106,13 @@ function render() {
   childrenToRemove.forEach(::scene.remove);
 
   // Spawn a new note.
-  if (random(0, 100) < 5) {
-    objLoader.load(`note${random(1, 2)}.obj`, note => {
+  if (random(0, 100) < 7) {
+    objLoader.load(`note${random(1, 4)}.obj`, note => {
       note.position.x = random(-500, 500);
       note.position.y = random(gridBottom.position.y, gridTop.position.y);
       note.position.z = 0;
-      note.scale.x = note.scale.y = note.scale.z = 20;
-      note.userData.type = "note";
+      note.scale.x = note.scale.y = note.scale.z = 10;
+      note.userData = { type: "note" };
       note.traverse(child => {
         if (child instanceof THREE.Mesh) {
           child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
