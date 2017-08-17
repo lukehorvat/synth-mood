@@ -23,6 +23,7 @@ OBJLoader(THREE);
 const backgroundColor = new THREE.Color(0x111111);
 const foregroundColor = new THREE.Color(0x3700FF);
 const lightColor = new THREE.Color(0xFFFFFF);
+const material = new THREE.MeshToonMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
 const fieldOfView = 45;
 const drawDistance = 1000;
 const gridSize = 10000;
@@ -35,18 +36,17 @@ document.body.appendChild(renderer.domElement);
 let scene = new THREE.Scene();
 scene.background = backgroundColor;
 
-let ambientLight = new THREE.AmbientLight(lightColor);
-scene.add(ambientLight);
-
 let camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 1, drawDistance);
 camera.position.x = 0;
 camera.position.y = 0;
 camera.position.z = drawDistance;
 
+let ambientLight = new THREE.AmbientLight(lightColor);
+scene.add(ambientLight);
+
 let fontLoader = new THREE.FontLoader();
 fontLoader.load("fonts/Righteous_Regular.json", font => {
   let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
-  let material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
   let text = new THREE.Mesh(geometry, material);
 
   // Center text.
@@ -58,17 +58,19 @@ fontLoader.load("fonts/Righteous_Regular.json", font => {
   scene.add(text);
 });
 
-let gridBottom = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, foregroundColor);
+let gridBottom = new THREE.GridHelper(gridSize, gridDivisions);
 gridBottom.position.x = 0;
 gridBottom.position.y = -100;
 gridBottom.position.z = 0;
+gridBottom.material = material;
 gridBottom.userData = { type: "grid" };
 scene.add(gridBottom);
 
-let gridTop = new THREE.GridHelper(gridSize, gridDivisions, foregroundColor, foregroundColor);
+let gridTop = new THREE.GridHelper(gridSize, gridDivisions);
 gridTop.position.x = 0;
 gridTop.position.y = 100;
 gridTop.position.z = 0;
+gridTop.material = material;
 gridTop.userData = { type: "grid" };
 scene.add(gridTop);
 
@@ -115,7 +117,7 @@ function render() {
       note.userData = { type: "note" };
       note.traverse(child => {
         if (child instanceof THREE.Mesh) {
-          child.material = new THREE.MeshLambertMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
+          child.material = material;
         }
       });
 
