@@ -77,6 +77,8 @@ scene.add(gridTop);
 let objLoader = new THREE.OBJLoader();
 objLoader.setPath("models/");
 
+let t = 0;
+
 function render() {
   requestAnimationFrame(render);
 
@@ -108,9 +110,9 @@ function render() {
   childrenToRemove.forEach(::scene.remove);
 
   // Spawn a new note.
-  if (random(0, 100) < 7) {
+  if (t % 15 === 0) {
     objLoader.load(`note${random(1, 4)}.obj`, note => {
-      note.position.x = random(-500, 500);
+      note.position.x = random(-380, 380);
       note.position.y = random(gridBottom.position.y, gridTop.position.y);
       note.position.z = 0;
       note.scale.x = note.scale.y = note.scale.z = 10;
@@ -126,12 +128,14 @@ function render() {
   }
 
   // Spawn a new sound.
-  if (random(0, 1000) < 10) {
+  if (t % 1000 === 0) {
     // soundManager.getSoundById(`${random(1, 5)}.mp3`).play();
   }
 
   // Render the scene!
   renderer.render(scene, camera);
+
+  t++;
 }
 
 render();
