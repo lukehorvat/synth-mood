@@ -1,24 +1,9 @@
 import * as THREE from "three";
-import OBJLoader from "three-obj-loader";
 import WindowResize from "three-window-resize";
 import random from "lodash.random";
-import { soundManager } from "soundmanager2";
-
-soundManager.setup({
-  debugMode: false,
-  onready: () => ["1.mp3", "2.mp3", "3.mp3", "4.mp3", "5.mp3"].forEach(sound => (
-    soundManager.createSound({
-      id: sound,
-      url: `sounds/${sound}`,
-      autoLoad: true,
-      onload: () => {
-        // TODO.
-      }
-    })
-  ))
-});
-
-OBJLoader(THREE);
+import SoundCache from "./sound-cache";
+import ModelCache from "./model-cache";
+import FontCache from "./font-cache";
 
 const backgroundColor = new THREE.Color(0x111111);
 const foregroundColor = new THREE.Color(0x3700FF);
@@ -29,55 +14,61 @@ const drawDistance = 1000;
 const gridSize = 10000;
 const gridDivisions = 150;
 
-let renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+let renderer, scene, camera, t;
 
-let scene = new THREE.Scene();
-scene.background = backgroundColor;
+init().then(render);
 
-let camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 1, drawDistance);
-camera.position.x = 0;
-camera.position.y = 0;
-camera.position.z = drawDistance;
+function init() {
+  return Promise.all([
+    SoundCache.init(["1", "2", "3", "4", "5"]),
+    ModelCache.init(["note1", "note2", "note3", "note4"]),
+    FontCache.init(["Righteous_Regular"])
+  ]).then(() => {
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-let ambientLight = new THREE.AmbientLight(lightColor);
-scene.add(ambientLight);
+    scene = new THREE.Scene();
+    scene.background = backgroundColor;
 
-let fontLoader = new THREE.FontLoader();
-fontLoader.load("fonts/Righteous_Regular.json", font => {
-  let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
-  let text = new THREE.Mesh(geometry, material);
+    camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 1, drawDistance);
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = drawDistance;
 
-  // Center text.
-  geometry.computeBoundingBox();
-  text.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
-  text.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
-  text.position.z = 0;
+    let ambientLight = new THREE.AmbientLight(lightColor);
+    scene.add(ambientLight);
 
-  scene.add(text);
-});
+    let font = FontCache.get("Righteous_Regular");
+    let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
+    let text = new THREE.Mesh(geometry, material);
+    geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
+    text.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
+    text.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
+    text.position.z = 0;
+    scene.add(text);
 
-let gridBottom = new THREE.GridHelper(gridSize, gridDivisions);
-gridBottom.position.x = 0;
-gridBottom.position.y = -100;
-gridBottom.position.z = 0;
-gridBottom.material = material;
-gridBottom.userData = { type: "grid" };
-scene.add(gridBottom);
+    let gridBottom = new THREE.GridHelper(gridSize, gridDivisions);
+    gridBottom.position.x = 0;
+    gridBottom.position.y = -100;
+    gridBottom.position.z = 0;
+    gridBottom.material = material;
+    gridBottom.userData = { type: "grid" };
+    scene.add(gridBottom);
 
-let gridTop = new THREE.GridHelper(gridSize, gridDivisions);
-gridTop.position.x = 0;
-gridTop.position.y = 100;
-gridTop.position.z = 0;
-gridTop.material = material;
-gridTop.userData = { type: "grid" };
-scene.add(gridTop);
+    let gridTop = new THREE.GridHelper(gridSize, gridDivisions);
+    gridTop.position.x = 0;
+    gridTop.position.y = 100;
+    gridTop.position.z = 0;
+    gridTop.material = material;
+    gridTop.userData = { type: "grid" };
+    scene.add(gridTop);
 
-let objLoader = new THREE.OBJLoader();
-objLoader.setPath("models/");
+    WindowResize(renderer, camera); // Automatically handle window resize events.
 
-let t = 0;
+    t = 0;
+  });
+}
 
 function render() {
   requestAnimationFrame(render);
@@ -111,25 +102,24 @@ function render() {
 
   // Spawn a new note.
   if (t % 15 === 0) {
-    objLoader.load(`note${random(1, 4)}.obj`, note => {
-      note.position.x = random(-380, 380);
-      note.position.y = random(gridBottom.position.y, gridTop.position.y);
-      note.position.z = 0;
-      note.scale.x = note.scale.y = note.scale.z = 10;
-      note.userData = { type: "note" };
-      note.traverse(child => {
-        if (child instanceof THREE.Mesh) {
-          child.material = material;
-        }
-      });
-
-      scene.add(note);
+    let note = ModelCache.get(`note${random(1, 4)}`);
+    note.position.x = random(-380, 380);
+    note.position.y = random(-100, 100);
+    note.position.z = 0;
+    note.scale.x = note.scale.y = note.scale.z = 10;
+    note.userData = { type: "note" };
+    note.traverse(child => {
+      if (child instanceof THREE.Mesh) {
+        child.material = material;
+      }
     });
+    scene.add(note);
   }
 
   // Spawn a new sound.
   if (t % 1000 === 0) {
-    // soundManager.getSoundById(`${random(1, 5)}.mp3`).play();
+    let sound = SoundCache.get(`${random(1, 5)}`);
+    // sound.play();
   }
 
   // Render the scene!
@@ -137,7 +127,3 @@ function render() {
 
   t++;
 }
-
-render();
-
-WindowResize(renderer, camera); // Automatically handle window resize events.
