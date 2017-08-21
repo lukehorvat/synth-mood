@@ -54,7 +54,7 @@ function init() {
     text = new THREE.Mesh(geometry, material);
     text.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
     text.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
-    text.position.z = 0;
+    text.position.z = camera.position.z;
     scene.add(text);
 
     gridTop = new THREE.GridHelper(gridSize, gridDivisions);
@@ -80,6 +80,11 @@ function init() {
 function render() {
   requestAnimationFrame(render);
 
+  // Move text away from the camera until it reaches its resting position.
+  if (text.position.z > 0 && frame > 50) {
+    text.position.z = Math.max(text.position.z - 5, 0);
+  }
+
   // Move grids closer to the camera.
   // To make grids appear "infinite", reset their position once they have travelled one grid row of distance.
   gridTop.position.z += gridTop.position.z < gridSize / gridDivisions ? 1 : -gridTop.position.z;
@@ -97,7 +102,7 @@ function render() {
   });
 
   // Spawn a new note?
-  if (frame % 15 === 0) {
+  if (text.position.z === 0 && frame % 15 === 0) {
     let note = ModelCache.get(`note${random(1, 4)}`);
     note.position.x = random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
     note.position.y = random(gridBottom.position.y, gridTop.position.y);
