@@ -13,7 +13,7 @@ const drawDistance = 1000;
 const gridSize = 10000;
 const gridDivisions = 150;
 
-let renderer, scene, camera, t;
+let renderer, camera, scene, text, gridTop, gridBottom, notes, frame;
 
 init().then(render);
 
@@ -36,95 +36,80 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    scene = new THREE.Scene();
-
     camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 1, drawDistance);
     camera.position.x = 0;
     camera.position.y = 0;
     camera.position.z = drawDistance;
+
+    WindowResize(renderer, camera); // Automatically handle window resize events.
+
+    scene = new THREE.Scene();
 
     let ambientLight = new THREE.AmbientLight();
     scene.add(ambientLight);
 
     let font = FontCache.get("Righteous_Regular");
     let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
-    let text = new THREE.Mesh(geometry, material);
     geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
+    text = new THREE.Mesh(geometry, material);
     text.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
     text.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
     text.position.z = 0;
     scene.add(text);
 
-    let gridBottom = new THREE.GridHelper(gridSize, gridDivisions);
-    gridBottom.position.x = 0;
-    gridBottom.position.y = -100;
-    gridBottom.position.z = 0;
-    gridBottom.material = material;
-    gridBottom.userData = { type: "grid" };
-    scene.add(gridBottom);
-
-    let gridTop = new THREE.GridHelper(gridSize, gridDivisions);
+    gridTop = new THREE.GridHelper(gridSize, gridDivisions);
     gridTop.position.x = 0;
     gridTop.position.y = 100;
     gridTop.position.z = 0;
     gridTop.material = material;
-    gridTop.userData = { type: "grid" };
     scene.add(gridTop);
 
-    WindowResize(renderer, camera); // Automatically handle window resize events.
+    gridBottom = new THREE.GridHelper(gridSize, gridDivisions);
+    gridBottom.position.x = 0;
+    gridBottom.position.y = -100;
+    gridBottom.position.z = 0;
+    gridBottom.material = material;
+    scene.add(gridBottom);
 
-    t = 0;
+    notes = new Set();
+
+    frame = 0;
   });
 }
 
 function render() {
   requestAnimationFrame(render);
 
-  // Update all objects in the scene.
-  let childrenToRemove = new Set();
-  scene.traverse(child => {
-    switch (child.userData.type) {
-      case "grid":
-        if (child.position.z < gridSize / gridDivisions)
-          // Move grid closer to the camera.
-          child.position.z += 1;
-        else
-          // To make grid appear "infinite", reset its position once it has travelled one grid row of distance.
-          child.position.z = 0;
-        break;
-      case "note":
-        if (child.position.z < camera.position.z)
-          // Move note closer to the camera.
-          child.position.z += 3;
-        else
-          // Destroy note once it has travelled past the camera.
-          childrenToRemove.add(child);
-        // child.rotation.y += 0.02;
-        break;
+  // Move grids closer to the camera.
+  // To make grids appear "infinite", reset their position once they have travelled one grid row of distance.
+  gridTop.position.z += gridTop.position.z < gridSize / gridDivisions ? 1 : -gridTop.position.z;
+  gridBottom.position.z += gridBottom.position.z < gridSize / gridDivisions ? 1 : -gridBottom.position.z;
+
+  // Move notes closer to the camera.
+  // Destroy notes once they have travelled past the camera.
+  notes.forEach(note => {
+    if (note.position.z < camera.position.z) {
+      note.position.z += 3;
+    } else {
+      notes.delete(note);
+      scene.remove(note);
     }
   });
 
-  // Destroy scene objects.
-  childrenToRemove.forEach(::scene.remove);
-
-  // Spawn a new note.
-  if (t % 15 === 0) {
+  // Spawn a new note?
+  if (frame % 15 === 0) {
     let note = ModelCache.get(`note${random(1, 4)}`);
-    note.position.x = random(-380, 380);
-    note.position.y = random(-100, 100);
-    note.position.z = 0;
+    note.position.x = random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
+    note.position.y = random(gridBottom.position.y, gridTop.position.y);
+    note.position.z = text.position.z;
     note.scale.x = note.scale.y = note.scale.z = 10;
-    note.userData = { type: "note" };
-    note.traverse(child => {
-      if (child instanceof THREE.Mesh) {
-        child.material = material;
-      }
-    });
+    note.traverse(child => Object.assign(child, { material }));
+    notes.add(note);
     scene.add(note);
   }
 
-  // Spawn a new sound.
-  if (t % 1000 === 0) {
+  // Spawn a new sound?
+  if (frame % 1000 === 0) {
     let sound = SoundCache.get(`${random(1, 5)}`);
     // sound.play();
   }
@@ -132,5 +117,5 @@ function render() {
   // Render the scene!
   renderer.render(scene, camera);
 
-  t++;
+  frame++;
 }
