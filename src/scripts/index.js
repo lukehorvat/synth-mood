@@ -1,14 +1,13 @@
 import * as THREE from "three";
 import WindowResize from "three-window-resize";
 import random from "lodash.random";
-import SoundCache from "./sound-cache";
-import ModelCache from "./model-cache";
 import FontCache from "./font-cache";
+import ModelCache from "./model-cache";
+import SoundCache from "./sound-cache";
 
-const backgroundColor = new THREE.Color(0x111111);
-const foregroundColor = new THREE.Color(0x3700FF);
-const lightColor = new THREE.Color(0xFFFFFF);
-const material = new THREE.MeshToonMaterial({ color: foregroundColor, transparent: true, opacity: 0.85 });
+const loadingEl = document.getElementById("loading");
+const color = new THREE.Color(getComputedStyle(document.body).getPropertyValue("color"));
+const material = new THREE.MeshToonMaterial({ color, transparent: true, opacity: 0.85 });
 const fieldOfView = 45;
 const drawDistance = 1000;
 const gridSize = 10000;
@@ -19,24 +18,32 @@ let renderer, scene, camera, t;
 init().then(render);
 
 function init() {
-  return Promise.all([
-    SoundCache.init(["1", "2", "3", "4", "5"]),
-    ModelCache.init(["note1", "note2", "note3", "note4"]),
-    FontCache.init(["Righteous_Regular"])
-  ]).then(() => {
+  return Promise
+  .resolve()
+  .then(() => {
+    loadingEl.innerHTML = "Loading fonts...";
+    return FontCache.init(["Righteous_Regular"]);
+  }).then(() => {
+    loadingEl.innerHTML = "Loading models...";
+    return ModelCache.init(["note1", "note2", "note3", "note4"]);
+  }).then(() => {
+    loadingEl.innerHTML = "Loading sounds...";
+    return SoundCache.init(["1", "2", "3", "4", "5"]);
+  }).then(() => {
+    loadingEl.remove();
+
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
     scene = new THREE.Scene();
-    scene.background = backgroundColor;
 
     camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 1, drawDistance);
     camera.position.x = 0;
     camera.position.y = 0;
     camera.position.z = drawDistance;
 
-    let ambientLight = new THREE.AmbientLight(lightColor);
+    let ambientLight = new THREE.AmbientLight();
     scene.add(ambientLight);
 
     let font = FontCache.get("Righteous_Regular");

@@ -5,4 +5,15 @@ body {
   padding: 0;
   border: 0;
   overflow: hidden;
+  background: #111;
+  color: #3700ff;
+}
+
+#loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
 }
