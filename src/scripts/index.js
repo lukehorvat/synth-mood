@@ -5,8 +5,9 @@ import FontCache from "./font-cache";
 import ModelCache from "./model-cache";
 import SoundCache from "./sound-cache";
 
-const loadingEl = document.getElementById("loading");
-const color = new THREE.Color(getComputedStyle(document.body).getPropertyValue("color"));
+const appEl = document.querySelector(".app");
+const loadingEl = appEl.querySelector(".loading");
+const color = new THREE.Color(getComputedStyle(appEl).getPropertyValue("color"));
 const material = new THREE.MeshToonMaterial({ color, transparent: true, opacity: 0.85 });
 const fieldOfView = 45;
 const drawDistance = 1000;
@@ -34,7 +35,7 @@ function init() {
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+    appEl.appendChild(renderer.domElement);
 
     camera = new THREE.PerspectiveCamera(fieldOfView, window.innerWidth / window.innerHeight, 1, drawDistance);
     camera.position.x = 0;
