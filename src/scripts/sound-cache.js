@@ -1,9 +1,8 @@
+import Map from "es6-map/polyfill"; // Chrome has problems with extending Map. :(
 import { soundManager } from "soundmanager2";
 
-export default class {
-  static cache = new Map();
-
-  static init(soundNames) {
+export default class extends Map {
+  init(soundNames) {
     return new Promise(resolve => {
       soundManager.setup({
         debugMode: false,
@@ -18,14 +17,10 @@ export default class {
               autoLoad: true,
               onload: resolve
             });
-            this.cache.set(soundName, sound);
+            this.set(soundName, sound);
           })
         ))
       )
     ));
-  }
-
-  static get(soundName) {
-    return this.cache.get(soundName);
   }
 }

@@ -4,6 +4,7 @@
     "start": "./node_modules/.bin/gulp watch"
   },
   "dependencies": {
+    "es6-map": "0.1.5",
     "lodash.random": "3.2.0",
     "soundmanager2": "2.97.20170602",
     "three": "0.86.0",

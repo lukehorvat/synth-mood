@@ -13,6 +13,9 @@ const fieldOfView = 45;
 const drawDistance = 1000;
 const gridSize = 10000;
 const gridDivisions = 150;
+const fontCache = new FontCache();
+const modelCache = new ModelCache();
+const soundCache = new SoundCache();
 
 let renderer, camera, scene, text, gridTop, gridBottom, notes, frame;
 
@@ -23,13 +26,13 @@ function init() {
   .resolve()
   .then(() => {
     loadingEl.innerHTML = "Loading fonts...";
-    return FontCache.init(["Righteous_Regular"]);
+    return fontCache.init(["Righteous_Regular"]);
   }).then(() => {
     loadingEl.innerHTML = "Loading models...";
-    return ModelCache.init(["note1", "note2", "note3", "note4"]);
+    return modelCache.init(["note1", "note2", "note3", "note4"]);
   }).then(() => {
     loadingEl.innerHTML = "Loading sounds...";
-    return SoundCache.init(["1", "2", "3", "4", "5"]);
+    return soundCache.init(["1", "2", "3", "4", "5"]);
   }).then(() => {
     loadingEl.remove();
 
@@ -49,7 +52,7 @@ function init() {
     let ambientLight = new THREE.AmbientLight();
     scene.add(ambientLight);
 
-    let font = FontCache.get("Righteous_Regular");
+    let font = fontCache.get("Righteous_Regular");
     let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
     geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
     text = new THREE.Mesh(geometry, material);
@@ -104,7 +107,8 @@ function render() {
 
   // Spawn a new note?
   if (text.position.z === 0 && frame % 15 === 0) {
-    let note = ModelCache.get(`note${random(1, 4)}`);
+    let models = Array.from(modelCache.values());
+    let note = models[random(0, models.length - 1)].clone();
     note.position.x = random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
     note.position.y = random(gridBottom.position.y, gridTop.position.y);
     note.position.z = text.position.z;
@@ -116,8 +120,9 @@ function render() {
 
   // Spawn a new sound?
   if (frame % 1000 === 0) {
-    let sound = SoundCache.get(`${random(1, 5)}`);
-    // sound.play();
+    let mutedSounds = Array.from(soundCache.values()).filter(sound => sound.playState === 0);
+    let sound = mutedSounds[random(0, mutedSounds.length - 1)];
+    // if (sound) sound.play();
   }
 
   // Render the scene!

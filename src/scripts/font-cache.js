@@ -1,24 +1,19 @@
+import Map from "es6-map/polyfill"; // Chrome has problems with extending Map. :(
 import * as THREE from "three";
 
-export default class {
-  static cache = new Map();
+export default class extends Map {
+  init(fontNames) {
+    let fontLoader = new THREE.FontLoader();
 
-  static fontLoader = new THREE.FontLoader();
-
-  static init(fontNames) {
     return Promise.all(
       fontNames.map(fontName => (
         new Promise(resolve => {
-          this.fontLoader.load(`fonts/${fontName}.json`, font => {
-            this.cache.set(fontName, font);
+          fontLoader.load(`fonts/${fontName}.json`, font => {
+            this.set(fontName, font);
             resolve();
           });
         })
       ))
     );
-  }
-
-  static get(fontName) {
-    return this.cache.get(fontName);
   }
 }
