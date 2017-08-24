@@ -8,7 +8,7 @@ import SoundCache from "./sound-cache";
 const appEl = document.querySelector(".app");
 const loadingEl = appEl.querySelector(".loading");
 const color = new THREE.Color(getComputedStyle(appEl).getPropertyValue("color"));
-const material = new THREE.MeshToonMaterial({ color, transparent: true, opacity: 0.85 });
+const material = new THREE.MeshToonMaterial({ color });
 const fieldOfView = 45;
 const drawDistance = 1000;
 const gridSize = 10000;
@@ -49,9 +49,6 @@ function init() {
 
     scene = new THREE.Scene();
 
-    let ambientLight = new THREE.AmbientLight();
-    scene.add(ambientLight);
-
     let font = fontCache.get("Righteous_Regular");
     let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 85, height: 1 });
     geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
@@ -76,6 +73,16 @@ function init() {
     scene.add(gridBottom);
 
     notes = new Set();
+
+    let spotlight = new THREE.SpotLight();
+    spotlight.position.x = 0;
+    spotlight.position.y = 0;
+    spotlight.position.z = -700;
+    spotlight.distance = drawDistance + Math.abs(spotlight.position.z) + 400;
+    spotlight.intensity = 1.75;
+    spotlight.color = color;
+    spotlight.target = camera;
+    scene.add(spotlight);
 
     frame = 0;
   });
@@ -106,13 +113,13 @@ function render() {
   });
 
   // Spawn a new note?
-  if (text.position.z === 0 && frame % 15 === 0) {
+  if (text.position.z === 0 && frame % 12 === 0) {
     let models = Array.from(modelCache.values());
     let note = models[random(0, models.length - 1)].clone();
     note.position.x = random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
-    note.position.y = random(gridBottom.position.y, gridTop.position.y);
+    note.position.y = random(text.position.y, text.position.y + text.geometry.boundingBox.max.y - text.geometry.boundingBox.min.y);
     note.position.z = text.position.z;
-    note.scale.x = note.scale.y = note.scale.z = 10;
+    note.scale.x = note.scale.y = note.scale.z = 8;
     note.traverse(child => Object.assign(child, { material }));
     notes.add(note);
     scene.add(note);
