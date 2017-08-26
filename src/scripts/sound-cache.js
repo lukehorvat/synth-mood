@@ -13,7 +13,7 @@ export default class extends Map {
         soundNames.map(soundName => (
           new Promise(resolve => {
             let sound = soundManager.createSound({
-              url: `sounds/${soundName}.mp3`,
+              url: `sounds/${soundName}.ogg`,
               autoLoad: true,
               onload: resolve
             });

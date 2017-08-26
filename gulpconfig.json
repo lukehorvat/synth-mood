@@ -7,7 +7,7 @@
   "style": "src/styles/index.scss",
   "misc": [
     "src/images/**/*.{ico,gif,jpg,png}",
-    "src/sounds/**/*.mp3",
+    "src/sounds/**/*.{mp3,ogg}",
     "src/fonts/**/*.json",
     "src/models/**/*.obj"
   ],

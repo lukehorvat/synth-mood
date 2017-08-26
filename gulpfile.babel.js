@@ -84,7 +84,7 @@ gulp.task("build-styles", () => {
 
 gulp.task("build-misc", () => {
   let imagesFilter = filter("**/*.{ico,gif,jpg,png}", { restore: true });
-  let soundsFilter = filter("**/*.mp3", { restore: true });
+  let soundsFilter = filter("**/*.{mp3,ogg}", { restore: true });
   let fontsFilter = filter("**/*.json", { restore: true });
   let modelsFilter = filter("**/*.obj", { restore: true });
 

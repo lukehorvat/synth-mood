@@ -119,7 +119,7 @@ function render() {
       note.position.y = previousNote && previousNote.position.y === gridBottom.position.y ? gridTop.position.y : gridBottom.position.y;
       note.position.z = text.position.z;
       note.scale.x = note.scale.y = note.scale.z = 15;
-      note.traverse(child => Object.assign(child, { material }));
+      note.children.filter(child => child instanceof THREE.Mesh).forEach(mesh => Object.assign(mesh, { material }));
       notes.push(note);
       scene.add(note);
     }
@@ -129,7 +129,7 @@ function render() {
     let mutedSounds = sounds.filter(sound => sound.playState === 0);
     if (sounds.length === mutedSounds.length || random(0, 1000) === 0) {
       let sound = mutedSounds[random(0, mutedSounds.length - 1)];
-      // if (sound) sound.play();
+      if (sound) sound.play();
     }
   }
 
