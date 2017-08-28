@@ -13,6 +13,7 @@ const fieldOfView = 55;
 const drawDistance = 1000;
 const gridSize = 10000;
 const gridDivisions = 140;
+const maxPlayingSounds = 3;
 const fontCache = new FontCache();
 const modelCache = new ModelCache();
 const soundCache = new SoundCache();
@@ -126,8 +127,9 @@ function render() {
 
     // Spawn a new sound?
     let sounds = Array.from(soundCache.values());
+    let playingSounds = sounds.filter(sound => sound.playState === 1);
     let mutedSounds = sounds.filter(sound => sound.playState === 0);
-    if (sounds.length === mutedSounds.length || random(0, 1000) === 0) {
+    if (playingSounds.length === 0 || (playingSounds.length < maxPlayingSounds && random(0, 1000) === 0)) {
       let sound = mutedSounds[random(0, mutedSounds.length - 1)];
       if (sound) sound.play();
     }
