@@ -1,4 +1,5 @@
 {
+  "name": "synth-mood",
   "private": true,
   "scripts": {
     "start": "./node_modules/.bin/gulp watch"
