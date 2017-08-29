@@ -30,10 +30,10 @@ function init() {
     return fontCache.init(["Righteous_Regular"]);
   }).then(() => {
     loadingEl.innerHTML = "Loading models...";
-    return modelCache.init(["note1", "note2", "note3", "note4"]);
+    return modelCache.init(Array.from({ length: 4 }, (_, n) => `${n + 1}`));
   }).then(() => {
     loadingEl.innerHTML = "Loading sounds...";
-    return soundCache.init(["1", "2", "3", "4", "5"]);
+    return soundCache.init(Array.from({ length: 5 }, (_, n) => `${n + 1}`));
   }).then(() => {
     loadingEl.remove();
 
