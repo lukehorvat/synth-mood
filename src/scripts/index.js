@@ -33,7 +33,7 @@ function init() {
     return modelCache.init(Array.from({ length: 4 }, (_, n) => `${n + 1}`));
   }).then(() => {
     loadingEl.innerHTML = "Loading sounds...";
-    return soundCache.init(Array.from({ length: 5 }, (_, n) => `${n + 1}`));
+    return soundCache.init(Array.from({ length: 26 }, (_, n) => `${n + 1}`));
   }).then(() => {
     loadingEl.remove();
 

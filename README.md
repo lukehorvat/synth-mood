@@ -21,7 +21,7 @@ This installs all dependencies and serves the Web app on port 9000.
 
 Feel free to send me a pull request if you want to add your own synthesizer sounds. But please adhere to the following:
 
-- Sounds are approximately 30 seconds in length.
+- Sounds are approximately 20 seconds in length.
 - Sounds are in [Ogg](https://en.wikipedia.org/wiki/Ogg) format.
 - Sounds are royalty-free.
 
