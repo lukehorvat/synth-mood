@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import WindowResize from "three-window-resize";
 import random from "lodash.random";
+import sample from "lodash.sample";
 import FontCache from "./font-cache";
 import ModelCache from "./model-cache";
 import SoundCache from "./sound-cache";
@@ -13,12 +14,11 @@ const fieldOfView = 55;
 const drawDistance = 1000;
 const gridSize = 10000;
 const gridDivisions = 140;
-const maxPlayingSounds = 3;
 const fontCache = new FontCache();
 const modelCache = new ModelCache();
 const soundCache = new SoundCache();
 
-let renderer, camera, scene, text, gridTop, gridBottom, spotlight, notes;
+let renderer, camera, scene, text, gridTop, gridBottom, spotlight, models, sounds;
 
 init().then(render);
 
@@ -84,7 +84,8 @@ function init() {
     spotlight.target = camera;
     scene.add(spotlight);
 
-    notes = [];
+    models = [];
+    sounds = [];
   });
 }
 
@@ -100,38 +101,43 @@ function render() {
     // Move text away from the camera until it reaches its resting position.
     text.position.z = Math.max(text.position.z - 5, 0);
   } else {
-    // Move notes closer to the camera.
-    // Destroy notes once they have travelled past the camera.
-    notes.forEach(note => {
-      if (note.position.z < camera.position.z) {
-        note.position.z += 4;
+    // Move models closer to the camera.
+    // Destroy models once they have travelled past the camera.
+    models.forEach(model => {
+      if (model.position.z < camera.position.z) {
+        model.position.z += 4;
       } else {
-        notes.shift();
-        scene.remove(note);
+        models.shift();
+        scene.remove(model);
       }
     });
 
-    // Spawn a new note?
-    let previousNote = notes[notes.length - 1];
-    if (!previousNote || previousNote.position.z > text.position.z + 60) {
-      let models = Array.from(modelCache.values());
-      let note = models[random(0, models.length - 1)].clone();
-      note.position.x = previousNote && previousNote.position.y === gridBottom.position.y ? -previousNote.position.x : random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
-      note.position.y = previousNote && previousNote.position.y === gridBottom.position.y ? gridTop.position.y : gridBottom.position.y;
-      note.position.z = text.position.z;
-      note.scale.x = note.scale.y = note.scale.z = 15;
-      note.children.filter(child => child instanceof THREE.Mesh).forEach(mesh => Object.assign(mesh, { material }));
-      notes.push(note);
-      scene.add(note);
+    // Spawn a new model?
+    let lastModel = models[models.length - 1];
+    if (!lastModel || lastModel.position.z > text.position.z + 60) {
+      let model = sample(Array.from(modelCache.values())).clone();
+      model.position.x = lastModel && lastModel.position.y === gridBottom.position.y ? -lastModel.position.x : random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
+      model.position.y = lastModel && lastModel.position.y === gridBottom.position.y ? gridTop.position.y : gridBottom.position.y;
+      model.position.z = text.position.z;
+      model.scale.x = model.scale.y = model.scale.z = 15;
+      model.children.filter(child => child instanceof THREE.Mesh).forEach(mesh => Object.assign(mesh, { material }));
+      models.push(model);
+      scene.add(model);
     }
 
     // Spawn a new sound?
-    let sounds = Array.from(soundCache.values());
-    let playingSounds = sounds.filter(sound => sound.playState === 1);
-    let mutedSounds = sounds.filter(sound => sound.playState === 0);
-    if (playingSounds.length === 0 || (playingSounds.length < maxPlayingSounds && random(0, 1000) === 0)) {
-      let sound = mutedSounds[random(0, mutedSounds.length - 1)];
-      if (sound) sound.play();
+    let lastSound = sounds[sounds.length - 1];
+    if (!lastSound || lastSound.position > lastSound.duration * 0.65) {
+      let sound = sample(Array.from(soundCache.values()).filter(sound => !sounds.includes(sound)));
+      sound.repeats = random(0, 4);
+      sound.onPosition(sound.duration * 0.95, () => {
+        if (sound.repeats > 0) {
+          sound.repeats--;
+          sound.setPosition(0);
+        }
+      });
+      sound.play({ onfinish: ::sounds.shift });
+      sounds.push(sound);
     }
   }
 
