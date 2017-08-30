@@ -4,6 +4,8 @@ Sleep, study, and relax with the sound of synthesizers. Inspired by [RainyMood.c
 
 Live version hosted [here](https://lukehorvat.github.io/synth-mood).
 
+![](https://i.imgur.com/BsTiuDe.png)
+
 ## Setup
 
 To run a local instance, issue the following commands:
