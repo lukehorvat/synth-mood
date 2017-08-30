@@ -90,7 +90,8 @@ function init() {
 }
 
 function render() {
-  requestAnimationFrame(render);
+  // Queue up the next render.
+  setTimeout(render, 16);
 
   // Move grids closer to the camera.
   // To make grids appear "infinite", reset their position once they have travelled one grid row of distance.
