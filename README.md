@@ -4,7 +4,7 @@ Sleep, study, and relax with the sound of synthesizers. Inspired by [RainyMood.c
 
 Live version hosted [here](https://synth.js.org).
 
-![](https://i.imgur.com/BsTiuDe.png)
+![](https://i.imgur.com/YNpOpz9.gif)
 
 ## Setup
 
