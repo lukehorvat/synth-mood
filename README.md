@@ -2,7 +2,7 @@
 
 Sleep, study, and relax with the sound of synthesizers. Inspired by [RainyMood.com](http://rainymood.com)!
 
-Live version hosted [here](https://lukehorvat.github.io/synth-mood).
+Live version hosted [here](https://synth.js.org).
 
 ![](https://i.imgur.com/BsTiuDe.png)
 
