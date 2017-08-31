@@ -22,7 +22,7 @@ const fontCache = new FontCache("fonts");
 const modelCache = new ModelCache("models");
 const soundCache = new SoundCache("sounds");
 
-let renderer, camera, scene, text, gridTop, gridBottom, spotlight, models, sounds;
+let renderer, camera, scene, title, gridTop, gridBottom, spotlight, models, sounds;
 
 init().then(render);
 
@@ -61,13 +61,13 @@ function init() {
     scene = new THREE.Scene();
 
     let font = fontCache.get("Righteous_Regular.json");
-    let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 110, height: 1 });
-    geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
-    text = new THREE.Mesh(geometry, material);
-    text.position.x = geometry.boundingBox.min.x - geometry.boundingBox.max.x / 2;
-    text.position.y = geometry.boundingBox.min.y - geometry.boundingBox.max.y / 2;
-    text.position.z = camera.position.z + 250;
-    scene.add(text);
+    title = new THREE.Mesh(new THREE.TextGeometry("SYNTH MOOD", { font, size: 110, height: 1 }));
+    title.material = material;
+    title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
+    title.position.x = title.geometry.boundingBox.min.x - title.geometry.boundingBox.max.x / 2;
+    title.position.y = title.geometry.boundingBox.min.y - title.geometry.boundingBox.max.y / 2;
+    title.position.z = camera.position.z + 250;
+    scene.add(title);
 
     gridTop = new THREE.GridHelper(gridSize, gridDivisions);
     gridTop.position.x = 0;
@@ -108,9 +108,9 @@ function render() {
   gridTop.position.z += gridTop.position.z < gridSize / gridDivisions ? 1 : -gridTop.position.z;
   gridBottom.position.z += gridBottom.position.z < gridSize / gridDivisions ? 1 : -gridBottom.position.z;
 
-  if (text.position.z > 0) {
-    // Move text away from the camera until it reaches its resting position.
-    text.position.z = Math.max(text.position.z - 5, 0);
+  if (title.position.z > 0) {
+    // Move title away from the camera until it reaches its resting position.
+    title.position.z = Math.max(title.position.z - 5, 0);
   } else {
     // Move models closer to the camera.
     // Destroy models once they have travelled past the camera.
@@ -125,11 +125,11 @@ function render() {
 
     // Spawn a new model?
     let lastModel = models[models.length - 1];
-    if (!lastModel || lastModel.position.z > text.position.z + 60) {
+    if (!lastModel || lastModel.position.z > title.position.z + 60) {
       let model = sample(Array.from(modelCache.values())).clone();
-      model.position.x = lastModel && lastModel.position.y === gridBottom.position.y ? -lastModel.position.x : random(text.position.x, text.position.x + text.geometry.boundingBox.max.x - text.geometry.boundingBox.min.x);
+      model.position.x = lastModel && lastModel.position.y === gridBottom.position.y ? -lastModel.position.x : random(title.position.x, title.position.x + title.geometry.boundingBox.max.x - title.geometry.boundingBox.min.x);
       model.position.y = lastModel && lastModel.position.y === gridBottom.position.y ? gridTop.position.y : gridBottom.position.y;
-      model.position.z = text.position.z;
+      model.position.z = title.position.z;
       model.scale.x = model.scale.y = model.scale.z = 15;
       model.children.filter(child => child instanceof THREE.Mesh).forEach(mesh => Object.assign(mesh, { material }));
       models.push(model);
