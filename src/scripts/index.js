@@ -22,7 +22,7 @@ const fontCache = new FontCache("fonts");
 const modelCache = new ModelCache("models");
 const soundCache = new SoundCache("sounds");
 
-let renderer, camera, scene, title, gridTop, gridBottom, spotlight, models, sounds;
+let renderer, camera, scene, description, title, gridTop, gridBottom, spotlight, models, sounds;
 
 init().then(render);
 
@@ -61,12 +61,20 @@ function init() {
     scene = new THREE.Scene();
 
     let font = fontCache.get("Righteous_Regular.json");
+    description = new THREE.Mesh(new THREE.TextGeometry("SLEEP, STUDY, AND RELAX WITH THE SOUND OF SYNTHESIZERS!", { font, size: 35, height: 1 }));
+    description.material = Object.assign(material.clone(), { transparent: true });
+    description.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
+    description.position.x = description.geometry.boundingBox.min.x - description.geometry.boundingBox.max.x / 2;
+    description.position.y = description.geometry.boundingBox.min.y - description.geometry.boundingBox.max.y / 2;
+    description.position.z = camera.position.z + 250;
+    scene.add(description);
+
     title = new THREE.Mesh(new THREE.TextGeometry("SYNTH MOOD", { font, size: 110, height: 1 }));
     title.material = material;
     title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
     title.position.x = title.geometry.boundingBox.min.x - title.geometry.boundingBox.max.x / 2;
     title.position.y = title.geometry.boundingBox.min.y - title.geometry.boundingBox.max.y / 2;
-    title.position.z = camera.position.z + 250;
+    title.position.z = camera.position.z + 1250;
     scene.add(title);
 
     gridTop = new THREE.GridHelper(gridSize, gridDivisions);
@@ -108,9 +116,17 @@ function render() {
   gridTop.position.z += gridTop.position.z < gridSize / gridDivisions ? 1 : -gridTop.position.z;
   gridBottom.position.z += gridBottom.position.z < gridSize / gridDivisions ? 1 : -gridBottom.position.z;
 
-  if (title.position.z > 0) {
+  if (description.position.z > 0) {
+    // Move description away from the camera until it reaches its resting position.
+    description.position.z = Math.max(description.position.z - 5, 0);
+  } else if (title.position.z > 0) {
     // Move title away from the camera until it reaches its resting position.
     title.position.z = Math.max(title.position.z - 5, 0);
+
+    // Fade-out description once title enters the picture.
+    if (title.position.z < camera.position.z) {
+      description.material.opacity -= 0.008;
+    }
   } else {
     // Move models closer to the camera.
     // Destroy models once they have travelled past the camera.
