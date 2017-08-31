@@ -2,6 +2,7 @@ import * as THREE from "three";
 import WindowResize from "three-window-resize";
 import random from "lodash.random";
 import sample from "lodash.sample";
+import each from "promise-each";
 import FontCache from "./font-cache";
 import ModelCache from "./model-cache";
 import SoundCache from "./sound-cache";
@@ -14,9 +15,12 @@ const fieldOfView = 55;
 const drawDistance = 1000;
 const gridSize = 10000;
 const gridDivisions = 140;
-const fontCache = new FontCache();
-const modelCache = new ModelCache();
-const soundCache = new SoundCache();
+const fontFilenames = ["Righteous_Regular.json"];
+const modelFilenames = Array.from({ length: 4 }, (_, index) => `${index + 1}.obj`);
+const soundFilenames = Array.from({ length: 26 }, (_, index) => `${index + 1}.ogg`);
+const fontCache = new FontCache("fonts");
+const modelCache = new ModelCache("models");
+const soundCache = new SoundCache("sounds");
 
 let renderer, camera, scene, text, gridTop, gridBottom, spotlight, models, sounds;
 
@@ -25,16 +29,22 @@ init().then(render);
 function init() {
   return Promise
   .resolve()
-  .then(() => {
-    loadingEl.innerHTML = "Loading fonts...";
-    return fontCache.init(["Righteous_Regular"]);
-  }).then(() => {
-    loadingEl.innerHTML = "Loading models...";
-    return modelCache.init(Array.from({ length: 4 }, (_, n) => `${n + 1}`));
-  }).then(() => {
-    loadingEl.innerHTML = "Loading sounds...";
-    return soundCache.init(Array.from({ length: 26 }, (_, n) => `${n + 1}`));
-  }).then(() => {
+  .then(() => (
+    Promise.resolve(fontFilenames).then(each((fontFilename, index) => {
+      loadingEl.innerHTML = `Loading font ${index + 1}/${fontFilenames.length}...`;
+      return fontCache.set(fontFilename);
+    }))
+  )).then(() => (
+    Promise.resolve(modelFilenames).then(each((modelFilename, index) => {
+      loadingEl.innerHTML = `Loading model ${index + 1}/${modelFilenames.length}...`;
+      return modelCache.set(modelFilename);
+    }))
+  )).then(() => (
+    Promise.resolve(soundFilenames).then(each((soundFilename, index) => {
+      loadingEl.innerHTML = `Loading sound ${index + 1}/${soundFilenames.length}...`;
+      return soundCache.set(soundFilename);
+    }))
+  )).then(() => {
     loadingEl.remove();
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -50,7 +60,7 @@ function init() {
 
     scene = new THREE.Scene();
 
-    let font = fontCache.get("Righteous_Regular");
+    let font = fontCache.get("Righteous_Regular.json");
     let geometry = new THREE.TextGeometry("SYNTH MOOD", { font, size: 110, height: 1 });
     geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
     text = new THREE.Mesh(geometry, material);
