@@ -23,18 +23,14 @@ This installs all dependencies and serves the Web app on port 9000.
 
 Feel free to send me a pull request if you want to add your own synthesizer sounds. But please adhere to the following:
 
-- Sounds are approximately 20 seconds in length.
+- Sounds are approximately 22 seconds in length, with 4 seconds of volume fade-in and fade-out.
 - Sounds are in [Ogg](https://en.wikipedia.org/wiki/Ogg) format.
 - Sounds are royalty-free.
 
-Personally, I take the following approach:
+Personally, I take the following approach to creating new sounds:
 
 1. Craft a sound in GarageBand (or another DAW).
 2. Export sound as an uncompressed WAV file.
-3. Convert WAV to Ogg using FFmpeg:
-
-  ```bash
-  ffmpeg -i sound.wav -c:a libvorbis -q:a 5 sound.ogg
-  ```
+3. [Convert WAV to Ogg using FFmpeg](/wav2ogg.sh).
 
 At some point in the future, I will switch from audio files to [Web MIDI](https://www.w3.org/TR/webmidi/), in order to eliminate the long loading time.
