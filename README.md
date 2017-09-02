@@ -33,4 +33,4 @@ Personally, I take the following approach to creating new sounds:
 2. Export sound as an uncompressed WAV file.
 3. [Convert WAV to Ogg using FFmpeg](/wav2ogg.sh).
 
-At some point in the future, I will switch from audio files to [Web MIDI](https://www.w3.org/TR/webmidi/), in order to eliminate the long loading time.
+At some point in the future, I will switch from using audio files to the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API), in order to eliminate the long loading time.
