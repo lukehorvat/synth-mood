@@ -65,6 +65,7 @@ function init() {
     description.material = Object.assign(material.clone(), { transparent: true });
     description.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
     description.position.x = description.geometry.boundingBox.min.x - description.geometry.boundingBox.max.x / 2;
+    description.position.x -= 2; // FIXME: Text doesn't center properly; a bug in FontLoader?
     description.position.y = description.geometry.boundingBox.min.y - description.geometry.boundingBox.max.y / 2;
     description.position.z = camera.position.z + 250;
     scene.add(description);
@@ -73,6 +74,7 @@ function init() {
     title.material = material;
     title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
     title.position.x = title.geometry.boundingBox.min.x - title.geometry.boundingBox.max.x / 2;
+    title.position.x -= 6; // FIXME: Text doesn't center properly; a bug in FontLoader?
     title.position.y = title.geometry.boundingBox.min.y - title.geometry.boundingBox.max.y / 2;
     title.position.z = camera.position.z + 1250;
     scene.add(title);
