@@ -163,7 +163,7 @@ function render() {
           sound.setPosition(0);
         }
       });
-      sound.play({ onfinish: ::sounds.shift });
+      sound.play({ onfinish: ::sounds.shift, volume: 20 });
       sounds.push(sound);
     }
   }
