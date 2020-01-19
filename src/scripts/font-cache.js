@@ -1,4 +1,3 @@
-import Map from "es6-map/polyfill"; // Chrome has problems with extending Map. :(
 import * as THREE from "three";
 
 export default class extends Map {
