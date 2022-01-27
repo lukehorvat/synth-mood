@@ -9,7 +9,7 @@
     "lodash.sample": "4.2.1",
     "promise-each": "2.2.0",
     "soundmanager2": "2.97.20170602",
-    "three": "0.86.0",
+    "three": "0.137.0",
     "three-obj-loader": "1.1.2",
     "three-window-resize": "1.0.4"
   },
