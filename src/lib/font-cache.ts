@@ -9,17 +9,17 @@ export class FontCache {
     this.map = new Map<string, Font>();
   }
 
-  get(key: string) {
+  get(key: string): Font | undefined {
     return this.map.get(key);
   }
 
-  async set(key: string) {
+  async set(key: string): Promise<void> {
     const fontLoader = new FontLoader();
     const font = await fontLoader.loadAsync(`${this.path}/${key}`);
     this.map.set(key, font);
   }
 
-  values() {
-    return this.map.values();
+  values(): Font[] {
+    return [...this.map.values()];
   }
 }

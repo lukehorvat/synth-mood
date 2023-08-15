@@ -38,15 +38,15 @@ let gridBottom: THREE.GridHelper;
 let models: THREE.Group[];
 let sounds: SMSound[];
 
-main();
+void main();
 
-async function main() {
+async function main(): Promise<void> {
   await loadData();
   initialiseScene();
   requestAnimationFrame(renderScene);
 }
 
-async function loadData() {
+async function loadData(): Promise<void> {
   loadingEl.textContent = 'Loading fonts...';
   for (const fontFilename of fontFilenames) {
     await fontCache.set(fontFilename);
@@ -65,7 +65,7 @@ async function loadData() {
   loadingEl.remove();
 }
 
-function initialiseScene() {
+function initialiseScene(): void {
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   appEl.appendChild(renderer.domElement);
@@ -113,7 +113,7 @@ function initialiseScene() {
   sounds = [];
 }
 
-function renderScene() {
+function renderScene(): void {
   // Move grids closer to the camera.
   // To make grids appear "infinite", reset their position once they have travelled one grid row of distance.
   gridTop.position.z +=
@@ -139,9 +139,9 @@ function renderScene() {
     });
 
     // Spawn a new model?
-    let lastModel = models[models.length - 1];
+    const lastModel = models[models.length - 1];
     if (!lastModel || lastModel.position.z > title.position.z + 60) {
-      let model = sample([...modelCache.values()])!.clone();
+      const model = sample(modelCache.values())!.clone();
       model.position.x =
         lastModel && lastModel.position.y === gridBottom.position.y
           ? -lastModel.position.x
@@ -167,10 +167,10 @@ function renderScene() {
     }
 
     // Spawn a new sound?
-    let lastSound = sounds[sounds.length - 1];
+    const lastSound = sounds[sounds.length - 1];
     if (!lastSound || lastSound.position > lastSound.duration * 0.65) {
-      let sound = sample(
-        [...soundCache.values()].filter((sound) => !sounds.includes(sound))
+      const sound = sample(
+        soundCache.values().filter((sound) => !sounds.includes(sound))
       )!;
       sound.repeats = random(0, 4);
       sound.onPosition(sound.duration * 0.95, () => {

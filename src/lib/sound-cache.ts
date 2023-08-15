@@ -9,11 +9,11 @@ export class SoundCache {
     this.map = new Map<string, SMSound>();
   }
 
-  get(key: string) {
+  get(key: string): SMSound | undefined {
     return this.map.get(key);
   }
 
-  async set(key: string) {
+  async set(key: string): Promise<void> {
     await new Promise<void>((resolve) => {
       if (soundManager.ok()) resolve();
       else soundManager.setup({ onready: resolve });
@@ -30,8 +30,8 @@ export class SoundCache {
     });
   }
 
-  values() {
-    return this.map.values();
+  values(): SMSound[] {
+    return [...this.map.values()];
   }
 }
 
