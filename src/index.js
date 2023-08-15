@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import WindowResize from 'three-window-resize';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
@@ -93,7 +94,7 @@ function init() {
       let font = fontCache.get('Righteous_Regular.json');
 
       title = new THREE.Mesh(
-        new THREE.TextGeometry('SYNTH MOOD', { font, size: 110, height: 1 })
+        new TextGeometry('SYNTH MOOD', { font, size: 110, height: 1 })
       );
       title.material = material;
       title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
@@ -124,7 +125,7 @@ function init() {
       spotlight.position.y = 0;
       spotlight.position.z = -700;
       spotlight.distance = drawDistance + Math.abs(spotlight.position.z) - 100;
-      spotlight.intensity = 2;
+      spotlight.intensity = Math.PI * 2;
       spotlight.decay = 0.7;
       spotlight.color = color;
       spotlight.target = camera;

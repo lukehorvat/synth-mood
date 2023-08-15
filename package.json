@@ -8,7 +8,7 @@
     "lodash": "^4.17.21",
     "p-map": "^6.0.0",
     "soundmanager2": "^2.97.20170602",
-    "three": "0.105.0",
+    "three": "0.155.0",
     "three-window-resize": "^1.0.4"
   },
   "devDependencies": {

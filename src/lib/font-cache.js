@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
 export default class extends Map {
   constructor(path = '') {
@@ -11,7 +11,7 @@ export default class extends Map {
     if (value !== undefined) return super.set(key, value);
 
     return new Promise((resolve) => {
-      let fontLoader = new THREE.FontLoader();
+      let fontLoader = new FontLoader();
       fontLoader.load(`${this.path}/${key}`, (font) => {
         this.set(key, font);
         resolve();
