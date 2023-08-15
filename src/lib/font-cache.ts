@@ -1,4 +1,4 @@
-import { Font, FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
+import { Font, FontLoader } from 'three/addons/loaders/FontLoader.js';
 
 export class FontCache {
   private readonly path: string;

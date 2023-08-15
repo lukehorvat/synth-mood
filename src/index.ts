@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
 import { FontCache } from './lib/font-cache';
