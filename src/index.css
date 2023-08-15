@@ -18,20 +18,16 @@ body, .app {
   text-transform: uppercase;
 }
 
-.fork {
-  img {
-    display: none;
-  }
+.fork img {
+  display: none;
 }
 
 @media screen and (min-width: 48em) {
-  .fork {
-    img {
-      display: inherit;
-      position: absolute;
-      top: 0;
-      right: 0;
-      border: 0;
-    }
+  .fork img {
+    display: inherit;
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
   }
 }

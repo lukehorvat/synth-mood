@@ -2,10 +2,11 @@ import * as THREE from "three";
 import WindowResize from "three-window-resize";
 import random from "lodash.random";
 import sample from "lodash.sample";
-import each from "promise-each";
-import FontCache from "./font-cache";
-import ModelCache from "./model-cache";
-import SoundCache from "./sound-cache";
+import pMap from 'p-map'
+import FontCache from "./lib/font-cache";
+import ModelCache from "./lib/model-cache";
+import SoundCache from "./lib/sound-cache";
+import './index.css';
 
 const appEl = document.querySelector(".app");
 const loadingEl = appEl.querySelector(".loading");
@@ -29,22 +30,16 @@ init().then(render);
 function init() {
   return Promise
   .resolve()
-  .then(() => (
-    Promise.resolve(fontFilenames).then(each((fontFilename, index) => {
-      loadingEl.innerHTML = `Loading font ${index + 1}/${fontFilenames.length}...`;
-      return fontCache.set(fontFilename);
-    }))
-  )).then(() => (
-    Promise.resolve(modelFilenames).then(each((modelFilename, index) => {
-      loadingEl.innerHTML = `Loading model ${index + 1}/${modelFilenames.length}...`;
-      return modelCache.set(modelFilename);
-    }))
-  )).then(() => (
-    Promise.resolve(soundFilenames).then(each((soundFilename, index) => {
-      loadingEl.innerHTML = `Loading sound ${index + 1}/${soundFilenames.length}...`;
-      return soundCache.set(soundFilename);
-    }))
-  )).then(() => {
+  .then(() => {
+    loadingEl.innerHTML = `Loading fonts...`;
+    return pMap(fontFilenames, (fontFilename) => fontCache.set(fontFilename), { concurrency: 6 })
+  }).then(() => {
+    loadingEl.innerHTML = `Loading models...`;
+    return pMap(modelFilenames, (modelFilename) => modelCache.set(modelFilename), { concurrency: 6 })
+  }).then(() => {
+    loadingEl.innerHTML = `Loading sounds...`;
+    return pMap(soundFilenames, (soundFilename) => soundCache.set(soundFilename), { concurrency: 6 })
+  }).then(() => {
     loadingEl.remove();
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -149,21 +144,11 @@ function render() {
           sound.setPosition(0);
         }
       });
-      sound.play({ onfinish: ::sounds.shift, volume: 20 });
+      sound.play({ onfinish: () => { sounds.shift(); }, volume: 20 });
       sounds.push(sound);
     }
   }
 
   // Render the scene!
   renderer.render(scene, camera);
-}
-
-// Google Analytics.
-if (process.env.NODE_ENV === "production") {
-  (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,"script","https://www.google-analytics.com/analytics.js","ga");
-  ga("create", "UA-24505142-6", "auto");
-  ga("send", "pageview");
 }
