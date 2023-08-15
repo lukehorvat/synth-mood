@@ -42,7 +42,9 @@ let renderer,
   models,
   sounds;
 
-init().then(render);
+init().then(() => {
+  requestAnimationFrame(render);
+});
 
 function init() {
   return Promise.resolve()
@@ -137,9 +139,6 @@ function init() {
 }
 
 function render() {
-  // Queue up the next render.
-  setTimeout(render, 16);
-
   // Move grids closer to the camera.
   // To make grids appear "infinite", reset their position once they have travelled one grid row of distance.
   gridTop.position.z +=
@@ -215,6 +214,6 @@ function render() {
     }
   }
 
-  // Render the scene!
   renderer.render(scene, camera);
+  requestAnimationFrame(render);
 }
