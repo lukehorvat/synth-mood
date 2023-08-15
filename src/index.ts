@@ -1,20 +1,18 @@
 import * as THREE from 'three';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import WindowResize from 'three-window-resize';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
 import pMap from 'p-map';
-import FontCache from './lib/font-cache';
-import ModelCache from './lib/model-cache';
-import SoundCache from './lib/sound-cache';
+import { FontCache } from './lib/font-cache';
+import { ModelCache } from './lib/model-cache';
+import { SMSound, SoundCache } from './lib/sound-cache';
 import './index.css';
 
-const appEl = document.querySelector('.app');
-const loadingEl = appEl.querySelector('.loading');
+const appEl = document.querySelector('.app')!;
+const loadingEl = appEl.querySelector('.loading')!;
 const color = new THREE.Color(
   getComputedStyle(appEl).getPropertyValue('color')
 );
-const material = new THREE.MeshToonMaterial({ color });
 const fieldOfView = 55;
 const drawDistance = 1000;
 const gridSize = 10000;
@@ -32,15 +30,14 @@ const fontCache = new FontCache('fonts');
 const modelCache = new ModelCache('models');
 const soundCache = new SoundCache('sounds');
 
-let renderer,
-  camera,
-  scene,
-  title,
-  gridTop,
-  gridBottom,
-  spotlight,
-  models,
-  sounds;
+let renderer: THREE.Renderer;
+let camera: THREE.Camera;
+let scene: THREE.Scene;
+let title: THREE.Mesh;
+let gridTop: THREE.GridHelper;
+let gridBottom: THREE.GridHelper;
+let models: THREE.Group[];
+let sounds: SMSound[];
 
 init().then(() => {
   requestAnimationFrame(render);
@@ -89,49 +86,36 @@ function init() {
       camera.position.y = 0;
       camera.position.z = drawDistance;
 
-      WindowResize(renderer, camera); // Automatically handle window resize events.
-
       scene = new THREE.Scene();
 
-      let font = fontCache.get('Righteous_Regular.json');
+      const font = fontCache.get('Righteous_Regular.json')!;
 
       title = new THREE.Mesh(
         new TextGeometry('SYNTH MOOD', { font, size: 110, height: 1 })
       );
-      title.material = material;
+      title.material = new THREE.MeshBasicMaterial({ color });
       title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
       title.position.x =
-        title.geometry.boundingBox.min.x - title.geometry.boundingBox.max.x / 2;
+        title.geometry.boundingBox!.min.x -
+        title.geometry.boundingBox!.max.x / 2;
       title.position.x -= 6; // FIXME: Text doesn't center properly; a bug in FontLoader?
       title.position.y =
-        title.geometry.boundingBox.min.y - title.geometry.boundingBox.max.y / 2;
+        title.geometry.boundingBox!.min.y -
+        title.geometry.boundingBox!.max.y / 2;
       title.position.z = camera.position.z + 250;
       scene.add(title);
 
-      gridTop = new THREE.GridHelper(gridSize, gridDivisions);
+      gridTop = new THREE.GridHelper(gridSize, gridDivisions, color, color);
       gridTop.position.x = 0;
       gridTop.position.y = 125;
       gridTop.position.z = 0;
-      gridTop.material = material;
       scene.add(gridTop);
 
-      gridBottom = new THREE.GridHelper(gridSize, gridDivisions);
+      gridBottom = new THREE.GridHelper(gridSize, gridDivisions, color, color);
       gridBottom.position.x = 0;
       gridBottom.position.y = -125;
       gridBottom.position.z = 0;
-      gridBottom.material = material;
       scene.add(gridBottom);
-
-      spotlight = new THREE.SpotLight();
-      spotlight.position.x = 0;
-      spotlight.position.y = 0;
-      spotlight.position.z = -700;
-      spotlight.distance = drawDistance + Math.abs(spotlight.position.z) - 100;
-      spotlight.intensity = Math.PI * 2;
-      spotlight.decay = 0.7;
-      spotlight.color = color;
-      spotlight.target = camera;
-      scene.add(spotlight);
 
       models = [];
       sounds = [];
@@ -166,15 +150,15 @@ function render() {
     // Spawn a new model?
     let lastModel = models[models.length - 1];
     if (!lastModel || lastModel.position.z > title.position.z + 60) {
-      let model = sample(Array.from(modelCache.values())).clone();
+      let model = sample([...modelCache.values()])!.clone();
       model.position.x =
         lastModel && lastModel.position.y === gridBottom.position.y
           ? -lastModel.position.x
           : random(
               title.position.x,
               title.position.x +
-                title.geometry.boundingBox.max.x -
-                title.geometry.boundingBox.min.x
+                title.geometry.boundingBox!.max.x -
+                title.geometry.boundingBox!.min.x
             );
       model.position.y =
         lastModel && lastModel.position.y === gridBottom.position.y
@@ -182,9 +166,11 @@ function render() {
           : gridBottom.position.y;
       model.position.z = title.position.z;
       model.scale.x = model.scale.y = model.scale.z = 15;
-      model.children
-        .filter((child) => child instanceof THREE.Mesh)
-        .forEach((mesh) => Object.assign(mesh, { material }));
+      model.children.forEach((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material = new THREE.MeshBasicMaterial({ color });
+        }
+      });
       models.push(model);
       scene.add(model);
     }
@@ -193,10 +179,8 @@ function render() {
     let lastSound = sounds[sounds.length - 1];
     if (!lastSound || lastSound.position > lastSound.duration * 0.65) {
       let sound = sample(
-        Array.from(soundCache.values()).filter(
-          (sound) => !sounds.includes(sound)
-        )
-      );
+        [...soundCache.values()].filter((sound) => !sounds.includes(sound))
+      )!;
       sound.repeats = random(0, 4);
       sound.onPosition(sound.duration * 0.95, () => {
         if (sound.repeats > 0) {

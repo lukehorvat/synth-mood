@@ -8,10 +8,11 @@
     "lodash": "^4.17.21",
     "p-map": "^6.0.0",
     "soundmanager2": "^2.97.20170602",
-    "three": "0.155.0",
-    "three-window-resize": "^1.0.4"
+    "three": "0.155.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.197",
+    "@types/three": "0.155.0",
     "copy-webpack-plugin": "11.0.0",
     "css-loader": "^6.7.2",
     "html-webpack-plugin": "^5.5.0",
