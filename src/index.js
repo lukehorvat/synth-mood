@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import WindowResize from 'three-window-resize';
-import random from 'lodash.random';
-import sample from 'lodash.sample';
+import random from 'lodash/random';
+import sample from 'lodash/sample';
 import pMap from 'p-map';
 import FontCache from './lib/font-cache';
 import ModelCache from './lib/model-cache';
