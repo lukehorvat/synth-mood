@@ -13,19 +13,10 @@ export class FontCache {
     return this.map.get(key);
   }
 
-  set(key: string, value?: Font) {
-    if (value) {
-      this.map.set(key, value);
-      return;
-    }
-
-    return new Promise<void>((resolve) => {
-      let fontLoader = new FontLoader();
-      fontLoader.load(`${this.path}/${key}`, (font) => {
-        this.set(key, font);
-        resolve();
-      });
-    });
+  async set(key: string) {
+    const fontLoader = new FontLoader();
+    const font = await fontLoader.loadAsync(`${this.path}/${key}`);
+    this.map.set(key, font);
   }
 
   values() {

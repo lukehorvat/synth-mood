@@ -13,27 +13,21 @@ export class SoundCache {
     return this.map.get(key);
   }
 
-  set(key: string, value?: SMSound) {
-    if (value) {
-      this.map.set(key, value);
-      return;
-    }
-
-    return new Promise<void>((resolve) => {
+  async set(key: string) {
+    await new Promise<void>((resolve) => {
       if (soundManager.ok()) resolve();
       else soundManager.setup({ onready: resolve });
-    }).then(
-      () =>
-        new Promise<void>((resolve) => {
-          let sound = soundManager.createSound({
-            id: `sound#${key}`,
-            url: `${this.path}/${key}`,
-            autoLoad: true,
-            onload: resolve,
-          });
-          this.set(key, sound);
-        })
-    );
+    });
+
+    await new Promise<void>((resolve) => {
+      const sound = soundManager.createSound({
+        id: `sound#${key}`,
+        url: `${this.path}/${key}`,
+        autoLoad: true,
+        onload: resolve,
+      });
+      this.map.set(key, sound);
+    });
   }
 
   values() {

@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
-import pMap from 'p-map';
 import { FontCache } from './lib/font-cache';
 import { ModelCache } from './lib/model-cache';
 import { SMSound, SoundCache } from './lib/sound-cache';
@@ -39,90 +38,82 @@ let gridBottom: THREE.GridHelper;
 let models: THREE.Group[];
 let sounds: SMSound[];
 
-init().then(() => {
-  requestAnimationFrame(render);
-});
+main();
 
-function init() {
-  return Promise.resolve()
-    .then(() => {
-      loadingEl.innerHTML = `Loading fonts...`;
-      return pMap(
-        fontFilenames,
-        (fontFilename) => fontCache.set(fontFilename),
-        { concurrency: 6 }
-      );
-    })
-    .then(() => {
-      loadingEl.innerHTML = `Loading models...`;
-      return pMap(
-        modelFilenames,
-        (modelFilename) => modelCache.set(modelFilename),
-        { concurrency: 6 }
-      );
-    })
-    .then(() => {
-      loadingEl.innerHTML = `Loading sounds...`;
-      return pMap(
-        soundFilenames,
-        (soundFilename) => soundCache.set(soundFilename),
-        { concurrency: 6 }
-      );
-    })
-    .then(() => {
-      loadingEl.remove();
-
-      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      appEl.appendChild(renderer.domElement);
-
-      camera = new THREE.PerspectiveCamera(
-        fieldOfView,
-        window.innerWidth / window.innerHeight,
-        1,
-        drawDistance
-      );
-      camera.position.x = 0;
-      camera.position.y = 0;
-      camera.position.z = drawDistance;
-
-      scene = new THREE.Scene();
-
-      const font = fontCache.get('Righteous_Regular.json')!;
-
-      title = new THREE.Mesh(
-        new TextGeometry('SYNTH MOOD', { font, size: 110, height: 1 })
-      );
-      title.material = new THREE.MeshBasicMaterial({ color });
-      title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
-      title.position.x =
-        title.geometry.boundingBox!.min.x -
-        title.geometry.boundingBox!.max.x / 2;
-      title.position.x -= 6; // FIXME: Text doesn't center properly; a bug in FontLoader?
-      title.position.y =
-        title.geometry.boundingBox!.min.y -
-        title.geometry.boundingBox!.max.y / 2;
-      title.position.z = camera.position.z + 250;
-      scene.add(title);
-
-      gridTop = new THREE.GridHelper(gridSize, gridDivisions, color, color);
-      gridTop.position.x = 0;
-      gridTop.position.y = 125;
-      gridTop.position.z = 0;
-      scene.add(gridTop);
-
-      gridBottom = new THREE.GridHelper(gridSize, gridDivisions, color, color);
-      gridBottom.position.x = 0;
-      gridBottom.position.y = -125;
-      gridBottom.position.z = 0;
-      scene.add(gridBottom);
-
-      models = [];
-      sounds = [];
-    });
+async function main() {
+  await loadData();
+  initialiseScene();
+  requestAnimationFrame(renderScene);
 }
 
-function render() {
+async function loadData() {
+  loadingEl.textContent = 'Loading fonts...';
+  for (const fontFilename of fontFilenames) {
+    await fontCache.set(fontFilename);
+  }
+
+  loadingEl.textContent = 'Loading models...';
+  for (const modelFilename of modelFilenames) {
+    await modelCache.set(modelFilename);
+  }
+
+  loadingEl.textContent = 'Loading sounds...';
+  for (const soundFilename of soundFilenames) {
+    await soundCache.set(soundFilename);
+  }
+
+  loadingEl.remove();
+}
+
+function initialiseScene() {
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  appEl.appendChild(renderer.domElement);
+
+  camera = new THREE.PerspectiveCamera(
+    fieldOfView,
+    window.innerWidth / window.innerHeight,
+    1,
+    drawDistance
+  );
+  camera.position.x = 0;
+  camera.position.y = 0;
+  camera.position.z = drawDistance;
+
+  scene = new THREE.Scene();
+
+  const font = fontCache.get('Righteous_Regular.json')!;
+
+  title = new THREE.Mesh(
+    new TextGeometry('SYNTH MOOD', { font, size: 110, height: 1 })
+  );
+  title.material = new THREE.MeshBasicMaterial({ color });
+  title.geometry.computeBoundingBox(); // Compute bounding box so that text can be centered.
+  title.position.x =
+    title.geometry.boundingBox!.min.x - title.geometry.boundingBox!.max.x / 2;
+  title.position.x -= 6; // FIXME: Text doesn't center properly; a bug in FontLoader?
+  title.position.y =
+    title.geometry.boundingBox!.min.y - title.geometry.boundingBox!.max.y / 2;
+  title.position.z = camera.position.z + 250;
+  scene.add(title);
+
+  gridTop = new THREE.GridHelper(gridSize, gridDivisions, color, color);
+  gridTop.position.x = 0;
+  gridTop.position.y = 125;
+  gridTop.position.z = 0;
+  scene.add(gridTop);
+
+  gridBottom = new THREE.GridHelper(gridSize, gridDivisions, color, color);
+  gridBottom.position.x = 0;
+  gridBottom.position.y = -125;
+  gridBottom.position.z = 0;
+  scene.add(gridBottom);
+
+  models = [];
+  sounds = [];
+}
+
+function renderScene() {
   // Move grids closer to the camera.
   // To make grids appear "infinite", reset their position once they have travelled one grid row of distance.
   gridTop.position.z +=
@@ -199,5 +190,5 @@ function render() {
   }
 
   renderer.render(scene, camera);
-  requestAnimationFrame(render);
+  requestAnimationFrame(renderScene);
 }

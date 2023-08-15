@@ -14,19 +14,10 @@ export class ModelCache {
     return this.map.get(key);
   }
 
-  set(key: string, value?: THREE.Group) {
-    if (value) {
-      this.map.set(key, value);
-      return;
-    }
-
-    return new Promise<void>((resolve) => {
-      let modelLoader = new OBJLoader();
-      modelLoader.load(`${this.path}/${key}`, (model) => {
-        this.set(key, model);
-        resolve();
-      });
-    });
+  async set(key: string) {
+    const modelLoader = new OBJLoader();
+    const model = await modelLoader.loadAsync(`${this.path}/${key}`);
+    this.map.set(key, model);
   }
 
   values() {
