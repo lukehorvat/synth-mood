@@ -1,7 +1,7 @@
-import * as THREE from "three";
+import * as THREE from 'three';
 
 export default class extends Map {
-  constructor(path = "") {
+  constructor(path = '') {
     super();
 
     this.path = path;
@@ -10,9 +10,9 @@ export default class extends Map {
   set(key, value) {
     if (value !== undefined) return super.set(key, value);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       let fontLoader = new THREE.FontLoader();
-      fontLoader.load(`${this.path}/${key}`, font => {
+      fontLoader.load(`${this.path}/${key}`, (font) => {
         this.set(key, font);
         resolve();
       });

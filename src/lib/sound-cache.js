@@ -1,7 +1,7 @@
-import { soundManager } from "soundmanager2";
+import { soundManager } from 'soundmanager2';
 
 export default class extends Map {
-  constructor(path = "") {
+  constructor(path = '') {
     super();
 
     this.path = path;
@@ -10,19 +10,20 @@ export default class extends Map {
   set(key, value) {
     if (value !== undefined) return super.set(key, value);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (soundManager.ok()) resolve();
       else soundManager.setup({ onready: resolve });
-    }).then(() => (
-      new Promise(resolve => {
-        let sound = soundManager.createSound({
-          id: `sound#${key}`,
-          url: `${this.path}/${key}`,
-          autoLoad: true,
-          onload: resolve
-        });
-        this.set(key, sound);
-      })
-    ));
+    }).then(
+      () =>
+        new Promise((resolve) => {
+          let sound = soundManager.createSound({
+            id: `sound#${key}`,
+            url: `${this.path}/${key}`,
+            autoLoad: true,
+            onload: resolve,
+          });
+          this.set(key, sound);
+        })
+    );
   }
 }

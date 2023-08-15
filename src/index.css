@@ -1,4 +1,5 @@
-body, .app {
+body,
+.app {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -14,7 +15,7 @@ body, .app {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   text-transform: uppercase;
 }
 
