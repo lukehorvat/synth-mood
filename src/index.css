@@ -1,3 +1,9 @@
+:root {
+  --primary-color: rgb(7, 7, 237, 1);
+  --primary-color-fade1: rgb(7, 7, 237, 0.1);
+  --primary-color-fade2: rgb(7, 7, 237, 0.25);
+}
+
 body,
 .app {
   width: 100%;
@@ -7,7 +13,42 @@ body,
   border: 0;
   overflow: hidden;
   background: #000;
-  color: #0707ed;
+  color: var(--primary-color);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-align: center;
+}
+
+.welcome {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.welcome h1 {
+  text-transform: uppercase;
+  margin-top: 0;
+}
+
+.welcome button {
+  min-width: 150px;
+  padding: 12px;
+  margin-top: 12px;
+  color: var(--primary-color);
+  background: var(--primary-color-fade1);
+  border: 4px solid var(--primary-color);
+  border-radius: 2px;
+  font: inherit;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.welcome button:hover {
+  background: var(--primary-color-fade2);
+}
+
+.welcome button:focus {
+  outline: none; /* Disable Chrome's blue outline. */
 }
 
 .loading {
@@ -15,20 +56,5 @@ body,
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   text-transform: uppercase;
-}
-
-.fork img {
-  display: none;
-}
-
-@media screen and (min-width: 48em) {
-  .fork img {
-    display: inherit;
-    position: absolute;
-    top: 0;
-    right: 0;
-    border: 0;
-  }
 }

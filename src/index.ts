@@ -8,9 +8,8 @@ import { SMSound, SoundCache } from './lib/sound-cache';
 import './index.css';
 
 const appEl = document.querySelector('.app')!;
-const loadingEl = appEl.querySelector('.loading')!;
 const color = new THREE.Color(
-  getComputedStyle(appEl).getPropertyValue('color')
+  getComputedStyle(appEl).getPropertyValue('--primary-color')
 );
 const fieldOfView = 55;
 const drawDistance = 1000;
@@ -41,12 +40,44 @@ let sounds: SMSound[];
 void main();
 
 async function main(): Promise<void> {
-  await loadData();
+  await showWelcomeScreen();
+  await showLoadingScreen();
   initialiseScene();
   requestAnimationFrame(renderScene);
 }
 
-async function loadData(): Promise<void> {
+async function showWelcomeScreen(): Promise<void> {
+  return new Promise((resolve) => {
+    const welcomeEl = document.createElement('div');
+    welcomeEl.className = 'welcome';
+    appEl.appendChild(welcomeEl);
+
+    const headingEl = document.createElement('h1');
+    headingEl.textContent = 'Synth Mood';
+    welcomeEl.appendChild(headingEl);
+
+    const descriptionEl = document.createElement('p');
+    descriptionEl.textContent =
+      'Sleep, study, and relax with the sound of synthesizers.';
+    welcomeEl.appendChild(descriptionEl);
+
+    const startButton = document.createElement('button');
+    startButton.textContent = 'Start';
+    startButton.type = 'button';
+    startButton.autofocus = true;
+    startButton.addEventListener('click', () => {
+      welcomeEl.remove();
+      resolve();
+    });
+    welcomeEl.appendChild(startButton);
+  });
+}
+
+async function showLoadingScreen(): Promise<void> {
+  const loadingEl = document.createElement('div');
+  loadingEl.className = 'loading';
+  appEl.appendChild(loadingEl);
+
   loadingEl.textContent = 'Loading fonts...';
   for (const fontFilename of fontFilenames) {
     await fontCache.set(fontFilename);
