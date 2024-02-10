@@ -1,1 +1,4 @@
-declare module 'soundmanager2';
+declare module 'soundmanager2' {
+  export type SMSound = any;
+  export const soundManager: any;
+}
