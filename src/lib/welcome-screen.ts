@@ -21,5 +21,11 @@ export function render(containerEl: Element): Promise<void> {
       resolve();
     });
     welcomeEl.appendChild(startButton);
+
+    const forkLink = document.createElement('a');
+    forkLink.className = 'fork';
+    forkLink.textContent = 'source code';
+    forkLink.href = 'https://github.com/lukehorvat/synth-mood';
+    containerEl.appendChild(forkLink);
   });
 }
