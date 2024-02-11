@@ -65,3 +65,16 @@ canvas {
   height: 100%;
   display: block;
 }
+
+.fork {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #000;
+  color: var(--primary-color);
+  text-decoration: none;
+  padding: 4px;
+  border-radius: 2px;
+  font-size: x-small;
+  z-index: 1; /* Above the canvas. */
+}
