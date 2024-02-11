@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "soundmanager2": "^2.97.20170602",
     "three": "0.155.0"
   },
   "devDependencies": {

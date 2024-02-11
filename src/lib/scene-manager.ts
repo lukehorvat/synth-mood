@@ -1,15 +1,15 @@
 import * as THREE from 'three';
 import { Font } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { SMSound } from 'soundmanager2';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
+import { Sound } from './sound';
 
 export class SceneManager {
   private readonly cache: {
     fonts: Map<string, Font>;
     models: Map<string, THREE.Group>;
-    sounds: Map<string, SMSound>;
+    sounds: Map<string, Sound>;
   };
   private readonly renderer: THREE.Renderer;
   private readonly camera: THREE.Camera;
@@ -19,12 +19,12 @@ export class SceneManager {
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
   private readonly models: THREE.Group[];
-  private readonly sounds: SMSound[];
+  private readonly sounds: Sound[];
 
   constructor(cache: {
     fonts: Map<string, Font>;
     models: Map<string, THREE.Group>;
-    sounds: Map<string, SMSound>;
+    sounds: Map<string, Sound>;
   }) {
     this.cache = cache;
 
@@ -143,19 +143,19 @@ export class SceneManager {
         (sound) => !this.sounds.includes(sound)
       )
     )!;
-    sound.repeats = random(0, 4);
-    sound.onPosition(sound.duration * 0.95, () => {
-      if (sound.repeats > 0) {
-        sound.repeats--;
-        sound.setPosition(0);
+
+    let loops = random(0, 4);
+    const removeListener = sound.onEnded(() => {
+      if (loops > 0) {
+        sound.play({ volume: 0.2 });
+        loops--;
+      } else {
+        this.sounds.splice(this.sounds.indexOf(sound), 1);
+        removeListener();
       }
     });
-    sound.play({
-      onfinish: () => {
-        this.sounds.shift();
-      },
-      volume: 20,
-    });
+
+    sound.play({ volume: 0.2 });
     this.sounds.push(sound);
   }
 
@@ -166,9 +166,11 @@ export class SceneManager {
   }
 
   private canSpawnSound(): boolean {
-    if (this.title.position.z > 0) return false;
+    if (this.title.position.z > 0 || this.sounds.length >= 3) return false;
     const lastSound = this.sounds[this.sounds.length - 1];
-    return !lastSound || lastSound.position > lastSound.duration * 0.65;
+    return (
+      !lastSound || lastSound.getCurrentTime() > lastSound.getDuration() * 0.65
+    );
   }
 
   private computeModelSpawnPosition(): [x: number, y: number, z: number] {

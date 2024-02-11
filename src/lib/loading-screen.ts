@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 import { Font, FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { SMSound, soundManager } from 'soundmanager2';
+import { Sound } from './sound';
 
 export async function render(containerEl: Element): Promise<{
   fonts: Map<string, Font>;
   models: Map<string, THREE.Group>;
-  sounds: Map<string, SMSound>;
+  sounds: Map<string, Sound>;
 }> {
   const loadingEl = document.createElement('div');
   loadingEl.className = 'loading';
@@ -52,25 +52,17 @@ async function loadModels(): Promise<Map<string, THREE.Group>> {
   return models;
 }
 
-async function loadSounds(): Promise<Map<string, SMSound>> {
-  await new Promise<void>((resolve) => {
-    if (soundManager.ok()) resolve();
-    else soundManager.setup({ onready: resolve });
-  });
+async function loadSounds(): Promise<Map<string, Sound>> {
+  Sound.init();
 
-  const sounds = new Map<string, SMSound>();
+  const sounds = new Map<string, Sound>();
   const filenames = Array.from({ length: 26 }, (_, i) => `${i + 1}.ogg`);
 
   for (const filename of filenames) {
-    await new Promise<void>((resolve) => {
-      const sound = soundManager.createSound({
-        id: `sound#${filename}`,
-        url: `sounds/${filename}`,
-        autoLoad: true,
-        onload: resolve,
-      });
-      sounds.set(filename, sound);
-    });
+    const response = await fetch(`sounds/${filename}`);
+    const data = await response.arrayBuffer();
+    const sound = await Sound.from(data);
+    sounds.set(filename, sound);
   }
 
   return sounds;
