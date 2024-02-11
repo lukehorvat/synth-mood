@@ -9,12 +9,11 @@ export function render(containerEl: Element): Promise<void> {
     welcomeEl.appendChild(headingEl);
 
     const descriptionEl = document.createElement('p');
-    descriptionEl.textContent =
-      'Sleep, study, and relax with the sound of synthesizers.';
+    descriptionEl.textContent = 'Synthesizer meditation zone.';
     welcomeEl.appendChild(descriptionEl);
 
     const startButton = document.createElement('button');
-    startButton.textContent = 'Start';
+    startButton.textContent = 'Enter';
     startButton.type = 'button';
     startButton.autofocus = true;
     startButton.addEventListener('click', () => {

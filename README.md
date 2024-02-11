@@ -1,10 +1,12 @@
 # Synth Mood
 
-Sleep, study, and relax with the sound of synthesizers. Inspired by [RainyMood.com](http://rainymood.com)!
-
-Live version hosted [here](https://synth.js.org).
-
 ![](https://i.imgur.com/YNpOpz9.gif)
+
+https://synth.js.org
+
+Synthesizer meditation zone.
+
+Inspired by [rainymood.com](http://rainymood.com).
 
 ## Setup
 
