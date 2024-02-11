@@ -18,7 +18,7 @@ export async function render(containerEl: Element): Promise<{
   const models = await loadModels();
 
   loadingEl.textContent = 'Loading sounds...';
-  const sounds = loadSounds();
+  const sounds = await loadSounds();
 
   loadingEl.remove();
 
@@ -51,7 +51,7 @@ async function loadModels(): Promise<Map<string, THREE.Group>> {
   return models;
 }
 
-function loadSounds(): Map<string, HTMLAudioElement> {
+async function loadSounds(): Promise<Map<string, HTMLAudioElement>> {
   const sounds = new Map<string, HTMLAudioElement>();
   const filenames = Array.from({ length: 26 }, (_, i) => `${i + 1}.ogg`);
 
@@ -59,6 +59,13 @@ function loadSounds(): Map<string, HTMLAudioElement> {
     const sound = new Audio(`sounds/${filename}`);
     sound.preload = 'auto';
     sound.volume = 0.1;
+
+    await new Promise<void>((resolve) => {
+      sound.addEventListener('canplaythrough', () => {
+        resolve();
+      });
+    });
+
     sounds.set(filename, sound);
   }
 
