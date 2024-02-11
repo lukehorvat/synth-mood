@@ -1,18 +1,16 @@
 # Synth Mood
 
-![](https://i.imgur.com/YNpOpz9.gif)
-
 https://synth.js.org
 
 Synthesizer meditation zone.
 
-Inspired by [rainymood.com](http://rainymood.com).
+![](https://i.imgur.com/YNpOpz9.gif)
 
 ## Setup
 
 To run a local instance, issue the following commands:
 
-```bash
+```sh
 $ git clone git@github.com:lukehorvat/synth-mood.git
 $ cd synth-mood
 $ npm install
@@ -36,3 +34,7 @@ Personally, I take the following approach to creating new sounds:
 3. [Convert WAV to Ogg using FFmpeg](/wav2ogg.sh).
 
 At some point in the future, I will switch from using audio files to the [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API), in order to eliminate the long loading time.
+
+## Credits
+
+Inspired by [rainymood.com](https://rainymood.com).
