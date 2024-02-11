@@ -1,0 +1,75 @@
+:root {
+  --primary-color: rgb(7, 7, 237, 1);
+  --primary-color-fade1: rgb(7, 7, 237, 0.1);
+  --primary-color-fade2: rgb(7, 7, 237, 0.25);
+}
+
+html,
+body,
+.app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: #000;
+  color: var(--primary-color);
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  text-align: center;
+}
+
+.welcome {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.welcome button {
+  min-width: 150px;
+  padding: 12px;
+  margin-top: 12px;
+  color: var(--primary-color);
+  background: var(--primary-color-fade1);
+  border: 4px solid var(--primary-color);
+  border-radius: 2px;
+  font: inherit;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.welcome button:hover {
+  background: var(--primary-color-fade2);
+}
+
+.welcome button:focus {
+  outline: none; /* Disable Chrome's blue outline. */
+}
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-transform: uppercase;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.fork {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: inherit;
+  color: inherit;
+  text-decoration: none;
+  padding: 4px;
+  border-radius: 2px;
+  font-size: x-small;
+  z-index: 1; /* Above the canvas. */
+}
