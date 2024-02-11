@@ -1,15 +1,11 @@
 import * as THREE from 'three';
-import { Font } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
+import { AssetCache } from './asset-cache';
 
 export class SceneManager {
-  private readonly cache: {
-    fonts: Map<string, Font>;
-    models: Map<string, THREE.Group>;
-    sounds: Map<string, HTMLAudioElement>;
-  };
+  private readonly assetCache: AssetCache;
   private readonly spawnedModels: Set<THREE.Group>;
   private readonly spawnedSounds: Set<HTMLAudioElement>;
   private readonly renderer: THREE.Renderer;
@@ -21,12 +17,8 @@ export class SceneManager {
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
 
-  constructor(cache: {
-    fonts: Map<string, Font>;
-    models: Map<string, THREE.Group>;
-    sounds: Map<string, HTMLAudioElement>;
-  }) {
-    this.cache = cache;
+  constructor(assetCache: AssetCache) {
+    this.assetCache = assetCache;
     this.spawnedModels = new Set();
     this.spawnedSounds = new Set();
 
@@ -42,7 +34,7 @@ export class SceneManager {
 
     this.title = new THREE.Mesh(
       new TextGeometry('SYNTH MOOD', {
-        font: this.cache.fonts.get('Righteous_Regular.json')!,
+        font: this.assetCache.fonts.get('Righteous_Regular.json')!,
         size: 110,
         height: 1,
       }).center()
@@ -122,7 +114,7 @@ export class SceneManager {
   }
 
   private spawnModel(): void {
-    const model = sample([...this.cache.models.values()])!.clone();
+    const model = sample([...this.assetCache.models.values()])!.clone();
     model.position.set(...this.computeModelSpawnPosition());
     model.scale.x = model.scale.y = model.scale.z = 15;
     model.children.forEach((child) => {
@@ -136,7 +128,7 @@ export class SceneManager {
 
   private spawnSound(): void {
     const sound = sample(
-      [...this.cache.sounds.values()].filter(
+      [...this.assetCache.sounds.values()].filter(
         (sound) => !this.spawnedSounds.has(sound)
       )
     )!;
