@@ -7,11 +7,11 @@
   },
   "dependencies": {
     "lodash": "^4.17.21",
-    "three": "0.155.0"
+    "three": "0.161.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.197",
-    "@types/three": "0.155.0",
+    "@types/three": "0.161.2",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "copy-webpack-plugin": "11.0.0",
