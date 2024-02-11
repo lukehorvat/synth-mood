@@ -4,8 +4,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/strict-type-checked',
     'plugin:@typescript-eslint/stylistic-type-checked',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
   ],
   plugins: ['@typescript-eslint'],
   parser: '@typescript-eslint/parser',
@@ -14,11 +12,6 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
   root: true,
-  settings: {
-    react: {
-      version: 'detect',
-    },
-  },
   rules: {
     '@typescript-eslint/explicit-function-return-type': [
       'warn',

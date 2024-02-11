@@ -6,8 +6,7 @@
     "esModuleInterop": true,
     "strict": true,
     "noEmitOnError": true,
-    "declaration": false,
-    "jsx": "react"
+    "declaration": false
   },
   "include": ["src"]
 }
