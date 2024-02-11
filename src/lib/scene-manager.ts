@@ -19,7 +19,7 @@ export class SceneManager {
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
   private readonly models: THREE.Group[];
-  private readonly sounds: Sound[];
+  private readonly sounds: Set<Sound>;
 
   constructor(cache: {
     fonts: Map<string, Font>;
@@ -71,22 +71,21 @@ export class SceneManager {
     this.scene.add(this.gridBottom);
 
     this.models = [];
-    this.sounds = [];
+    this.sounds = new Set();
   }
 
   render(containerEl: Element): void {
     containerEl.appendChild(this.renderer.domElement);
-    requestAnimationFrame(this.update.bind(this));
+    requestAnimationFrame(this.animate.bind(this));
+    this.spawnSound();
   }
 
-  private update(): void {
+  private animate(): void {
     this.animateGrid();
     this.animateTitle();
     this.animateModels();
-    this.spawnModel();
-    this.spawnSound();
     this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(this.update.bind(this));
+    requestAnimationFrame(this.animate.bind(this));
   }
 
   private animateGrid(): void {
@@ -118,11 +117,14 @@ export class SceneManager {
         this.scene.remove(model);
       }
     });
+
+    const lastModel = this.models[this.models.length - 1];
+    if (!lastModel || lastModel.position.z > this.title.position.z + 60) {
+      this.spawnModel();
+    }
   }
 
   private spawnModel(): void {
-    if (!this.canSpawnModel()) return;
-
     const model = sample([...this.cache.models.values()])!.clone();
     model.position.set(...this.computeModelSpawnPosition());
     model.scale.x = model.scale.y = model.scale.z = 15;
@@ -136,41 +138,30 @@ export class SceneManager {
   }
 
   private spawnSound(): void {
-    if (!this.canSpawnSound()) return;
-
     const sound = sample(
-      [...this.cache.sounds.values()].filter(
-        (sound) => !this.sounds.includes(sound)
-      )
+      [...this.cache.sounds.values()].filter((sound) => !this.sounds.has(sound))
     )!;
 
-    let loops = random(0, 4);
-    const removeListener = sound.onEnded(() => {
-      if (loops > 0) {
-        sound.play({ volume: 0.2 });
-        loops--;
-      } else {
-        this.sounds.splice(this.sounds.indexOf(sound), 1);
-        removeListener();
+    const removeTimeListener = sound.onTimeUpdate(() => {
+      if (sound.getCurrentTime() >= sound.getDuration() * 0.65) {
+        this.spawnSound();
+        removeTimeListener();
       }
     });
 
-    sound.play({ volume: 0.2 });
-    this.sounds.push(sound);
-  }
+    let loops = random(0, 2);
+    const removeEndListener = sound.onEnded(() => {
+      if (loops > 0) {
+        sound.play();
+        loops--;
+      } else {
+        this.sounds.delete(sound);
+        removeEndListener();
+      }
+    });
 
-  private canSpawnModel(): boolean {
-    if (this.title.position.z > 0) return false;
-    const lastModel = this.models[this.models.length - 1];
-    return !lastModel || lastModel.position.z > this.title.position.z + 60;
-  }
-
-  private canSpawnSound(): boolean {
-    if (this.title.position.z > 0 || this.sounds.length >= 3) return false;
-    const lastSound = this.sounds[this.sounds.length - 1];
-    return (
-      !lastSound || lastSound.getCurrentTime() > lastSound.getDuration() * 0.65
-    );
+    sound.play();
+    this.sounds.add(sound);
   }
 
   private computeModelSpawnPosition(): [x: number, y: number, z: number] {

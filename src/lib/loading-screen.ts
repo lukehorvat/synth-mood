@@ -19,7 +19,7 @@ export async function render(containerEl: Element): Promise<{
   const models = await loadModels();
 
   loadingEl.textContent = 'Loading sounds...';
-  const sounds = await loadSounds();
+  const sounds = loadSounds();
 
   loadingEl.remove();
 
@@ -52,16 +52,15 @@ async function loadModels(): Promise<Map<string, THREE.Group>> {
   return models;
 }
 
-async function loadSounds(): Promise<Map<string, Sound>> {
-  Sound.init();
-
+function loadSounds(): Map<string, Sound> {
   const sounds = new Map<string, Sound>();
   const filenames = Array.from({ length: 26 }, (_, i) => `${i + 1}.ogg`);
 
   for (const filename of filenames) {
-    const response = await fetch(`sounds/${filename}`);
-    const data = await response.arrayBuffer();
-    const sound = await Sound.from(data);
+    const audioEl = new Audio(`sounds/${filename}`);
+    audioEl.preload = 'auto';
+    audioEl.volume = 0.1;
+    const sound = new Sound(audioEl);
     sounds.set(filename, sound);
   }
 
