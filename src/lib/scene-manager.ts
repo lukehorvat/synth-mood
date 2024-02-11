@@ -3,13 +3,12 @@ import { Font } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
-import { Sound } from './sound';
 
 export class SceneManager {
   private readonly cache: {
     fonts: Map<string, Font>;
     models: Map<string, THREE.Group>;
-    sounds: Map<string, Sound>;
+    sounds: Map<string, HTMLAudioElement>;
   };
   private readonly renderer: THREE.Renderer;
   private readonly camera: THREE.Camera;
@@ -19,12 +18,12 @@ export class SceneManager {
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
   private readonly spawnedModels: Set<THREE.Group>;
-  private readonly spawnedSounds: Set<Sound>;
+  private readonly spawnedSounds: Set<HTMLAudioElement>;
 
   constructor(cache: {
     fonts: Map<string, Font>;
     models: Map<string, THREE.Group>;
-    sounds: Map<string, Sound>;
+    sounds: Map<string, HTMLAudioElement>;
   }) {
     this.cache = cache;
 
@@ -143,25 +142,27 @@ export class SceneManager {
       )
     )!;
 
-    const removeTimeListener = sound.onTimeUpdate(() => {
-      if (sound.getCurrentTime() >= sound.getDuration() * 0.65) {
+    const timeListener = () => {
+      if (sound.currentTime >= sound.duration * 0.65) {
         this.spawnSound();
-        removeTimeListener();
+        sound.removeEventListener('timeupdate', timeListener);
       }
-    });
+    };
+    sound.addEventListener('timeupdate', timeListener);
 
     let loops = random(0, 2);
-    const removeEndListener = sound.onEnded(() => {
+    const endListener = () => {
       if (loops > 0) {
-        sound.play();
+        void sound.play();
         loops--;
       } else {
         this.spawnedSounds.delete(sound);
-        removeEndListener();
+        sound.removeEventListener('ended', endListener);
       }
-    });
+    };
+    sound.addEventListener('ended', endListener);
 
-    sound.play();
+    void sound.play();
     this.spawnedSounds.add(sound);
   }
 

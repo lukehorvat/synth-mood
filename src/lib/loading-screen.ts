@@ -1,12 +1,11 @@
 import * as THREE from 'three';
 import { Font, FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { Sound } from './sound';
 
 export async function render(containerEl: Element): Promise<{
   fonts: Map<string, Font>;
   models: Map<string, THREE.Group>;
-  sounds: Map<string, Sound>;
+  sounds: Map<string, HTMLAudioElement>;
 }> {
   const loadingEl = document.createElement('div');
   loadingEl.className = 'loading';
@@ -52,15 +51,14 @@ async function loadModels(): Promise<Map<string, THREE.Group>> {
   return models;
 }
 
-function loadSounds(): Map<string, Sound> {
-  const sounds = new Map<string, Sound>();
+function loadSounds(): Map<string, HTMLAudioElement> {
+  const sounds = new Map<string, HTMLAudioElement>();
   const filenames = Array.from({ length: 26 }, (_, i) => `${i + 1}.ogg`);
 
   for (const filename of filenames) {
-    const audioEl = new Audio(`sounds/${filename}`);
-    audioEl.preload = 'auto';
-    audioEl.volume = 0.1;
-    const sound = new Sound(audioEl);
+    const sound = new Audio(`sounds/${filename}`);
+    sound.preload = 'auto';
+    sound.volume = 0.1;
     sounds.set(filename, sound);
   }
 
