@@ -10,16 +10,16 @@ export class SceneManager {
     models: Map<string, THREE.Group>;
     sounds: Map<string, HTMLAudioElement>;
   };
+  private readonly spawnedModels: Set<THREE.Group>;
+  private readonly spawnedSounds: Set<HTMLAudioElement>;
   private readonly renderer: THREE.Renderer;
-  private readonly camera: THREE.Camera;
+  private readonly camera: THREE.PerspectiveCamera;
   private readonly scene: THREE.Scene;
   private readonly clock: THREE.Clock;
   private readonly color: THREE.Color;
   private readonly title: THREE.Mesh;
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
-  private readonly spawnedModels: Set<THREE.Group>;
-  private readonly spawnedSounds: Set<HTMLAudioElement>;
 
   constructor(cache: {
     fonts: Map<string, Font>;
@@ -27,21 +27,15 @@ export class SceneManager {
     sounds: Map<string, HTMLAudioElement>;
   }) {
     this.cache = cache;
+    this.spawnedModels = new Set();
+    this.spawnedSounds = new Set();
 
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-
-    this.camera = new THREE.PerspectiveCamera(
-      FIELD_OF_VIEW,
-      window.innerWidth / window.innerHeight,
-      1,
-      DRAW_DISTANCE
-    );
-    this.camera.position.z = DRAW_DISTANCE;
-
+    this.camera = new THREE.PerspectiveCamera();
+    this.camera.fov = 55;
+    this.camera.far = this.camera.position.z = 1000;
     this.scene = new THREE.Scene();
     this.clock = new THREE.Clock();
-
     this.color = new THREE.Color(
       getComputedStyle(document.body).getPropertyValue('--primary-color')
     );
@@ -70,9 +64,6 @@ export class SceneManager {
     this.gridBottom = this.gridTop.clone();
     this.gridBottom.position.y = -125;
     this.scene.add(this.gridBottom);
-
-    this.spawnedModels = new Set();
-    this.spawnedSounds = new Set();
   }
 
   render(containerEl: Element): void {
@@ -86,30 +77,35 @@ export class SceneManager {
     this.animateGrid(delta);
     this.animateTitle(delta);
     this.animateModels(delta);
+    this.syncRendererSize();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate.bind(this));
   }
 
+  /**
+   * Move grids closer to the camera. To make grids appear "infinite", reset
+   * their position once they have travelled one grid row of distance.
+   */
   private animateGrid(delta: number): void {
-    // Move grids closer to the camera. To make grids appear "infinite", reset
-    // their position once they have travelled one grid row of distance.
     this.gridTop.position.z = this.gridBottom.position.z =
       this.gridTop.position.z < GRID_SIZE / GRID_DIVISIONS
         ? this.gridTop.position.z + 100 * delta
         : 0;
   }
 
+  /**
+   * Move the title away from the camera until it reaches its resting position.
+   */
   private animateTitle(delta: number): void {
-    if (this.title.position.z <= 0) return;
-
-    // Move title away from the camera until it reaches its resting position.
     this.title.position.z = Math.max(this.title.position.z - 350 * delta, 0);
   }
 
+  /**
+   * Move models closer to the camera and destroy them when they travel past it.
+   */
   private animateModels(delta: number): void {
     if (this.title.position.z > 0) return;
 
-    // Move models closer to the camera; destroy them when they travel past it.
     this.spawnedModels.forEach((model) => {
       if (model.position.z < this.camera.position.z) {
         model.position.z += 250 * delta;
@@ -186,9 +182,22 @@ export class SceneManager {
     const z = this.title.position.z;
     return [x, y, z];
   }
+
+  /**
+   * Sync the renderer size with the current canvas size.
+   */
+  private syncRendererSize(): void {
+    const canvas = this.renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    if (canvas.width !== width || canvas.height !== height) {
+      this.renderer.setSize(width, height, false);
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+    }
+  }
 }
 
-const FIELD_OF_VIEW = 55;
-const DRAW_DISTANCE = 1000;
 const GRID_SIZE = 10000;
 const GRID_DIVISIONS = 140;
