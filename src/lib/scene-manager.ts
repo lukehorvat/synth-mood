@@ -18,8 +18,8 @@ export class SceneManager {
   private readonly title: THREE.Mesh;
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
-  private readonly models: THREE.Group[];
-  private readonly sounds: Set<Sound>;
+  private readonly spawnedModels: Set<THREE.Group>;
+  private readonly spawnedSounds: Set<Sound>;
 
   constructor(cache: {
     fonts: Map<string, Font>;
@@ -70,8 +70,8 @@ export class SceneManager {
     this.gridBottom.position.y = -125;
     this.scene.add(this.gridBottom);
 
-    this.models = [];
-    this.sounds = new Set();
+    this.spawnedModels = new Set();
+    this.spawnedSounds = new Set();
   }
 
   render(containerEl: Element): void {
@@ -107,18 +107,17 @@ export class SceneManager {
   private animateModels(): void {
     if (this.title.position.z > 0) return;
 
-    // Move models closer to the camera. Destroy models once they have travelled
-    // past the camera.
-    this.models.forEach((model) => {
+    // Move models closer to the camera; destroy them when they travel past it.
+    this.spawnedModels.forEach((model) => {
       if (model.position.z < this.camera.position.z) {
         model.position.z += 4;
       } else {
-        this.models.shift();
+        this.spawnedModels.delete(model);
         this.scene.remove(model);
       }
     });
 
-    const lastModel = this.models[this.models.length - 1];
+    const lastModel = [...this.spawnedModels].pop();
     if (!lastModel || lastModel.position.z > this.title.position.z + 60) {
       this.spawnModel();
     }
@@ -133,13 +132,15 @@ export class SceneManager {
         child.material = new THREE.MeshBasicMaterial({ color: this.color });
       }
     });
-    this.models.push(model);
+    this.spawnedModels.add(model);
     this.scene.add(model);
   }
 
   private spawnSound(): void {
     const sound = sample(
-      [...this.cache.sounds.values()].filter((sound) => !this.sounds.has(sound))
+      [...this.cache.sounds.values()].filter(
+        (sound) => !this.spawnedSounds.has(sound)
+      )
     )!;
 
     const removeTimeListener = sound.onTimeUpdate(() => {
@@ -155,17 +156,17 @@ export class SceneManager {
         sound.play();
         loops--;
       } else {
-        this.sounds.delete(sound);
+        this.spawnedSounds.delete(sound);
         removeEndListener();
       }
     });
 
     sound.play();
-    this.sounds.add(sound);
+    this.spawnedSounds.add(sound);
   }
 
   private computeModelSpawnPosition(): [x: number, y: number, z: number] {
-    const lastModel = this.models[this.models.length - 1];
+    const lastModel = [...this.spawnedModels].pop();
     const x =
       lastModel?.position.y === this.gridBottom.position.y
         ? -lastModel.position.x
