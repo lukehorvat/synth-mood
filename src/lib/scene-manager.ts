@@ -13,6 +13,7 @@ export class SceneManager {
   private readonly renderer: THREE.Renderer;
   private readonly camera: THREE.Camera;
   private readonly scene: THREE.Scene;
+  private readonly clock: THREE.Clock;
   private readonly color: THREE.Color;
   private readonly title: THREE.Mesh;
   private readonly gridTop: THREE.GridHelper;
@@ -39,6 +40,7 @@ export class SceneManager {
     this.camera.position.z = DRAW_DISTANCE;
 
     this.scene = new THREE.Scene();
+    this.clock = new THREE.Clock();
 
     this.color = new THREE.Color(
       getComputedStyle(document.body).getPropertyValue('--primary-color')
@@ -80,36 +82,37 @@ export class SceneManager {
   }
 
   private animate(): void {
-    this.animateGrid();
-    this.animateTitle();
-    this.animateModels();
+    const delta = this.clock.getDelta();
+    this.animateGrid(delta);
+    this.animateTitle(delta);
+    this.animateModels(delta);
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate.bind(this));
   }
 
-  private animateGrid(): void {
+  private animateGrid(delta: number): void {
     // Move grids closer to the camera. To make grids appear "infinite", reset
     // their position once they have travelled one grid row of distance.
     this.gridTop.position.z = this.gridBottom.position.z =
       this.gridTop.position.z < GRID_SIZE / GRID_DIVISIONS
-        ? this.gridTop.position.z + 1
+        ? this.gridTop.position.z + 100 * delta
         : 0;
   }
 
-  private animateTitle(): void {
+  private animateTitle(delta: number): void {
     if (this.title.position.z <= 0) return;
 
     // Move title away from the camera until it reaches its resting position.
-    this.title.position.z = Math.max(this.title.position.z - 5, 0);
+    this.title.position.z = Math.max(this.title.position.z - 350 * delta, 0);
   }
 
-  private animateModels(): void {
+  private animateModels(delta: number): void {
     if (this.title.position.z > 0) return;
 
     // Move models closer to the camera; destroy them when they travel past it.
     this.spawnedModels.forEach((model) => {
       if (model.position.z < this.camera.position.z) {
-        model.position.z += 4;
+        model.position.z += 250 * delta;
       } else {
         this.spawnedModels.delete(model);
         this.scene.remove(model);
