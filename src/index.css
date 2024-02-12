@@ -1,7 +1,7 @@
 :root {
-  --primary-color: rgb(7, 7, 237, 1);
-  --primary-color-fade1: rgb(7, 7, 237, 0.1);
-  --primary-color-fade2: rgb(7, 7, 237, 0.25);
+  --primary-color: rgba(7, 7, 237, 1);
+  --primary-color-fade1: rgba(7, 7, 237, 0.1);
+  --primary-color-fade2: rgba(7, 7, 237, 0.25);
 }
 
 html,
