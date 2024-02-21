@@ -114,7 +114,7 @@ export class SceneManager {
   }
 
   private spawnModel(): void {
-    const model = sample([...this.assetCache.models.values()])!.clone();
+    const model = sample([...this.assetCache.models.values()])!.scene.clone();
     model.position.set(...this.computeModelSpawnPosition());
     model.scale.x = model.scale.y = model.scale.z = 15;
     model.children.forEach((child) => {

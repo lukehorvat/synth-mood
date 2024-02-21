@@ -1,10 +1,9 @@
-import * as THREE from 'three';
 import { Font, FontLoader } from 'three/addons/loaders/FontLoader.js';
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { GLTF, GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export class AssetCache {
   readonly fonts: Map<string, Font>;
-  readonly models: Map<string, THREE.Group>;
+  readonly models: Map<string, GLTF>;
   readonly sounds: Map<string, HTMLAudioElement>;
 
   constructor() {
@@ -24,8 +23,13 @@ export class AssetCache {
   }
 
   async loadModels(): Promise<void> {
-    const loader = new OBJLoader();
-    const filenames = Array.from({ length: 4 }, (_, i) => `${i + 1}.obj`);
+    const filenames = [
+      'half_note.glb',
+      'quarter_note.glb',
+      'double_eighth_note.glb',
+      'double_sixteenth_note.glb',
+    ];
+    const loader = new GLTFLoader();
 
     for (const filename of filenames) {
       const model = await loader.loadAsync(`models/${filename}`);
