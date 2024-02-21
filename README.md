@@ -11,10 +11,10 @@ Synthesizer meditation zone.
 To run a local instance, issue the following commands:
 
 ```sh
-$ git clone git@github.com:lukehorvat/synth-mood.git
-$ cd synth-mood
-$ npm install
-$ npm start
+git clone git@github.com:lukehorvat/synth-mood.git
+cd synth-mood
+npm install
+npm start
 ```
 
 This installs all dependencies and serves the Web app on port 9000.
