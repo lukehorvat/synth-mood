@@ -64,12 +64,17 @@ export class SceneManager {
     this.spawnSound();
   }
 
+  /**
+   * Render the current frame.
+   */
   private animate(): void {
     const delta = this.clock.getDelta();
-    this.animateGrid(delta);
-    this.animateTitle(delta);
-    this.animateModels(delta);
+
     this.syncRendererSize();
+    this.moveGridsInfinitely(delta);
+    this.moveTitleUntilRest(delta);
+    this.moveSpawnedModels(delta);
+
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate.bind(this));
   }
@@ -78,7 +83,7 @@ export class SceneManager {
    * Move grids closer to the camera. To make grids appear "infinite", reset
    * their position once they have travelled one grid row of distance.
    */
-  private animateGrid(delta: number): void {
+  private moveGridsInfinitely(delta: number): void {
     this.gridTop.position.z = this.gridBottom.position.z =
       this.gridTop.position.z < GRID_SIZE / GRID_DIVISIONS
         ? this.gridTop.position.z + 100 * delta
@@ -88,14 +93,14 @@ export class SceneManager {
   /**
    * Move the title away from the camera until it reaches its resting position.
    */
-  private animateTitle(delta: number): void {
+  private moveTitleUntilRest(delta: number): void {
     this.title.position.z = Math.max(this.title.position.z - 350 * delta, 0);
   }
 
   /**
    * Move models closer to the camera and destroy them when they travel past it.
    */
-  private animateModels(delta: number): void {
+  private moveSpawnedModels(delta: number): void {
     if (this.title.position.z > 0) return;
 
     this.spawnedModels.forEach((model) => {
@@ -113,6 +118,9 @@ export class SceneManager {
     }
   }
 
+  /**
+   * Spawn a new model at a random position.
+   */
   private spawnModel(): void {
     const model = sample([...this.assetCache.models.values()])!.scene.clone();
     model.position.set(...this.computeModelSpawnPosition());
@@ -126,6 +134,9 @@ export class SceneManager {
     this.scene.add(model);
   }
 
+  /**
+   * Spawn a new sound and start playing it. The audio may loop several times.
+   */
   private spawnSound(): void {
     const sound = sample(
       [...this.assetCache.sounds.values()].filter(
@@ -133,7 +144,7 @@ export class SceneManager {
       )
     )!;
 
-    const timeListener = () => {
+    const timeListener = (): void => {
       if (sound.currentTime >= sound.duration * 0.65) {
         this.spawnSound();
         sound.removeEventListener('timeupdate', timeListener);
@@ -142,7 +153,7 @@ export class SceneManager {
     sound.addEventListener('timeupdate', timeListener);
 
     let loops = random(0, 2);
-    const endListener = () => {
+    const endListener = (): void => {
       if (loops > 0) {
         void sound.play();
         loops--;
