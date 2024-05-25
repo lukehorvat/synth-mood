@@ -8,7 +8,7 @@ export class SceneManager {
   private readonly assetCache: AssetCache;
   private readonly spawnedModels: Set<THREE.Group>;
   private readonly spawnedSounds: Set<HTMLAudioElement>;
-  private readonly renderer: THREE.Renderer;
+  private readonly renderer: THREE.WebGLRenderer;
   private readonly camera: THREE.PerspectiveCamera;
   private readonly scene: THREE.Scene;
   private readonly clock: THREE.Clock;
@@ -23,6 +23,7 @@ export class SceneManager {
     this.spawnedSounds = new Set();
 
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera = new THREE.PerspectiveCamera();
     this.camera.fov = 55;
     this.camera.far = this.camera.position.z = 1000;
@@ -68,15 +69,15 @@ export class SceneManager {
    * Render the current frame.
    */
   private animate(): void {
-    const delta = this.clock.getDelta();
+    requestAnimationFrame(this.animate.bind(this));
 
+    const delta = this.clock.getDelta();
     this.syncRendererSize();
     this.moveGridsInfinitely(delta);
     this.moveTitleUntilRest(delta);
     this.moveSpawnedModels(delta);
 
     this.renderer.render(this.scene, this.camera);
-    requestAnimationFrame(this.animate.bind(this));
   }
 
   /**
