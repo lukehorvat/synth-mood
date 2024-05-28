@@ -23,7 +23,6 @@ export class SceneManager {
     this.spawnedSounds = new Set();
 
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.camera = new THREE.PerspectiveCamera();
     this.camera.fov = 55;
     this.camera.far = this.camera.position.z = 1000;
@@ -72,7 +71,7 @@ export class SceneManager {
     requestAnimationFrame(this.animate.bind(this));
 
     const delta = this.clock.getDelta();
-    this.syncRendererSize();
+    this.resizeRendererToDisplaySize();
     this.moveGridsInfinitely(delta);
     this.moveTitleUntilRest(delta);
     this.moveSpawnedModels(delta);
@@ -189,15 +188,19 @@ export class SceneManager {
 
   /**
    * Sync the renderer size with the current canvas size.
+   *
+   * @see https://threejs.org/manual/en/responsive.html
    */
-  private syncRendererSize(): void {
+  private resizeRendererToDisplaySize(): void {
     const canvas = this.renderer.domElement;
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
+    const pixelRatio = window.devicePixelRatio;
+    const width = Math.floor(canvas.clientWidth * pixelRatio);
+    const height = Math.floor(canvas.clientHeight * pixelRatio);
+    const needResize = canvas.width !== width || canvas.height !== height;
 
-    if (canvas.width !== width || canvas.height !== height) {
+    if (needResize) {
       this.renderer.setSize(width, height, false);
-      this.camera.aspect = width / height;
+      this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
       this.camera.updateProjectionMatrix();
     }
   }
