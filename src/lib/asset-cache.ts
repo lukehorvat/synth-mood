@@ -1,7 +1,7 @@
 import { Font, FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { GLTF, GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export class AssetCache {
+class AssetCache {
   readonly fonts: Map<string, Font>;
   readonly models: Map<string, GLTF>;
   readonly sounds: Map<string, HTMLAudioElement>;
@@ -63,6 +63,8 @@ export class AssetCache {
     this.sounds.set(filename, sound);
   }
 }
+
+export const assetCache = new AssetCache(); // singleton
 
 const FONT_FILENAMES = ['Righteous_Regular.json'];
 

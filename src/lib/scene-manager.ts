@@ -2,10 +2,9 @@ import * as THREE from 'three';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import random from 'lodash/random';
 import sample from 'lodash/sample';
-import { AssetCache } from './asset-cache';
+import { assetCache } from './asset-cache';
 
 export class SceneManager {
-  private readonly assetCache: AssetCache;
   private readonly spawnedModels: Set<THREE.Group>;
   private readonly spawnedSounds: Set<HTMLAudioElement>;
   private readonly renderer: THREE.WebGLRenderer;
@@ -17,8 +16,7 @@ export class SceneManager {
   private readonly gridTop: THREE.GridHelper;
   private readonly gridBottom: THREE.GridHelper;
 
-  constructor(assetCache: AssetCache) {
-    this.assetCache = assetCache;
+  constructor() {
     this.spawnedModels = new Set();
     this.spawnedSounds = new Set();
 
@@ -34,7 +32,7 @@ export class SceneManager {
 
     this.title = new THREE.Mesh(
       new TextGeometry('SYNTH MOOD', {
-        font: this.assetCache.fonts.get('Righteous_Regular.json')!,
+        font: assetCache.fonts.get('Righteous_Regular.json')!,
         size: 110,
         height: 1,
       }).center()
@@ -121,7 +119,7 @@ export class SceneManager {
    * Spawn a new model at a random position.
    */
   private spawnModel(): void {
-    const model = sample([...this.assetCache.models.values()])!.scene.clone();
+    const model = sample([...assetCache.models.values()])!.scene.clone();
     model.position.set(...this.computeModelSpawnPosition());
     model.scale.x = model.scale.y = model.scale.z = 15;
     model.children.forEach((child) => {
@@ -138,7 +136,7 @@ export class SceneManager {
    */
   private spawnSound(): void {
     const sound = sample(
-      [...this.assetCache.sounds.values()].filter(
+      [...assetCache.sounds.values()].filter(
         (sound) => !this.spawnedSounds.has(sound)
       )
     )!;

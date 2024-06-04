@@ -1,8 +1,6 @@
-import { AssetCache } from './asset-cache';
+import { assetCache } from './asset-cache';
 
-export async function render(containerEl: Element): Promise<AssetCache> {
-  const assetCache = new AssetCache();
-
+export async function render(containerEl: Element): Promise<void> {
   const loadingEl = document.createElement('div');
   loadingEl.className = 'loading';
   containerEl.appendChild(loadingEl);
@@ -14,6 +12,4 @@ export async function render(containerEl: Element): Promise<AssetCache> {
   loadingEl.textContent = 'Ready!';
   await new Promise((resolve) => setTimeout(resolve, 1000));
   loadingEl.remove();
-
-  return assetCache;
 }
