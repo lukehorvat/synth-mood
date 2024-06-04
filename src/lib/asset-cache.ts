@@ -5,53 +5,72 @@ export class AssetCache {
   readonly fonts: Map<string, Font>;
   readonly models: Map<string, GLTF>;
   readonly sounds: Map<string, HTMLAudioElement>;
+  private readonly fontLoader: FontLoader;
+  private readonly modelLoader: GLTFLoader;
 
   constructor() {
     this.fonts = new Map();
     this.models = new Map();
     this.sounds = new Map();
+    this.fontLoader = new FontLoader();
+    this.modelLoader = new GLTFLoader();
   }
 
-  async loadFonts(): Promise<void> {
-    const filenames = ['Righteous_Regular.json'];
-    const loader = new FontLoader();
+  async *loadAssets(): AsyncGenerator<string> {
+    for (const filename of FONT_FILENAMES) {
+      yield `Loading font "${filename}"...`;
+      await this.loadFont(filename);
+    }
 
-    for (const filename of filenames) {
-      const font = await loader.loadAsync(`fonts/${filename}`);
-      this.fonts.set(filename, font);
+    for (const filename of MODEL_FILENAMES) {
+      yield `Loading model "${filename}"...`;
+      await this.loadModel(filename);
+    }
+
+    for (const filename of SOUND_FILENAMES) {
+      yield `Loading sound "${filename}"...`;
+      await this.loadSound(filename);
     }
   }
 
-  async loadModels(): Promise<void> {
-    const filenames = [
-      'half_note.glb',
-      'quarter_note.glb',
-      'double_eighth_note.glb',
-      'double_sixteenth_note.glb',
-    ];
-    const loader = new GLTFLoader();
+  private async loadFont(filename: string): Promise<void> {
+    if (this.fonts.has(filename)) return;
 
-    for (const filename of filenames) {
-      const model = await loader.loadAsync(`models/${filename}`);
-      this.models.set(filename, model);
-    }
+    const font = await this.fontLoader.loadAsync(`fonts/${filename}`);
+    this.fonts.set(filename, font);
   }
 
-  async loadSounds(): Promise<void> {
-    const filenames = Array.from({ length: 26 }, (_, i) => `${i + 1}.ogg`);
+  private async loadModel(filename: string): Promise<void> {
+    if (this.models.has(filename)) return;
 
-    for (const filename of filenames) {
-      const sound = new Audio(`sounds/${filename}`);
-      sound.preload = 'auto';
-      sound.volume = 0.1;
+    const model = await this.modelLoader.loadAsync(`models/${filename}`);
+    this.models.set(filename, model);
+  }
 
-      await new Promise<void>((resolve) => {
-        sound.addEventListener('canplaythrough', () => {
-          resolve();
-        });
+  private async loadSound(filename: string): Promise<void> {
+    if (this.sounds.has(filename)) return;
+
+    const sound = new Audio(`sounds/${filename}`);
+    sound.preload = 'auto';
+    sound.volume = 0.1;
+
+    await new Promise<void>((resolve) => {
+      sound.addEventListener('canplaythrough', () => {
+        resolve();
       });
+    });
 
-      this.sounds.set(filename, sound);
-    }
+    this.sounds.set(filename, sound);
   }
 }
+
+const FONT_FILENAMES = ['Righteous_Regular.json'];
+
+const MODEL_FILENAMES = [
+  'half_note.glb',
+  'quarter_note.glb',
+  'double_eighth_note.glb',
+  'double_sixteenth_note.glb',
+];
+
+const SOUND_FILENAMES = Array.from({ length: 26 }, (_, i) => `${i + 1}.ogg`);

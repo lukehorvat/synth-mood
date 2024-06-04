@@ -7,15 +7,12 @@ export async function render(containerEl: Element): Promise<AssetCache> {
   loadingEl.className = 'loading';
   containerEl.appendChild(loadingEl);
 
-  loadingEl.textContent = 'Loading fonts...';
-  await assetCache.loadFonts();
+  for await (const message of assetCache.loadAssets()) {
+    loadingEl.textContent = message;
+  }
 
-  loadingEl.textContent = 'Loading models...';
-  await assetCache.loadModels();
-
-  loadingEl.textContent = 'Loading sounds...';
-  await assetCache.loadSounds();
-
+  loadingEl.textContent = 'Ready!';
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   loadingEl.remove();
 
   return assetCache;
