@@ -60,7 +60,7 @@ export class SceneManager {
 
   render(containerEl: Element): void {
     containerEl.appendChild(this.renderer.domElement);
-    requestAnimationFrame(this.animate.bind(this));
+    this.renderer.setAnimationLoop(this.animate.bind(this));
     this.spawnSound();
   }
 
@@ -68,9 +68,8 @@ export class SceneManager {
    * Render the current frame.
    */
   private animate(): void {
-    requestAnimationFrame(this.animate.bind(this));
-
     const delta = this.clock.getDelta();
+
     this.resizeRendererToDisplaySize();
     this.moveGridsInfinitely(delta);
     this.moveTitleUntilRest(delta);
