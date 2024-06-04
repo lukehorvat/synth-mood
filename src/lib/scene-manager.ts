@@ -57,7 +57,9 @@ export class SceneManager {
   }
 
   render(containerEl: Element): void {
-    containerEl.appendChild(this.renderer.domElement);
+    const canvas = this.renderer.domElement;
+    canvas.classList.add('scene');
+    containerEl.appendChild(canvas);
     this.renderer.setAnimationLoop(this.animate.bind(this));
     this.spawnSound();
   }
